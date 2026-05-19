@@ -165,7 +165,7 @@ function InstruccionesPolla() {
                   to="/register"
                   className="text-brand-600 hover:text-brand-700 font-semibold underline"
                 >
-                  Registrarse
+                  Crear cuenta
                 </Link>
                 .
               </span>
@@ -175,13 +175,22 @@ function InstruccionesPolla() {
                 2
               </span>
               <span>
+                <strong>Confirma tu correo</strong>: recibirás un email de
+                confirmación. Haz clic en el enlace para validar tu cuenta.
+              </span>
+            </li>
+            <li className="flex items-start gap-2.5">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-700 font-extrabold text-[11px] flex-shrink-0 mt-0.5">
+                3
+              </span>
+              <span>
                 Realiza el pago de <strong>$50.000 COP</strong> a Nequi{" "}
                 <strong className="text-slate-900 font-mono">3234965340</strong>.
               </span>
             </li>
             <li className="flex items-start gap-2.5">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-700 font-extrabold text-[11px] flex-shrink-0 mt-0.5">
-                3
+                4
               </span>
               <span>
                 Envía el comprobante por WhatsApp al{" "}
@@ -191,7 +200,7 @@ function InstruccionesPolla() {
             </li>
             <li className="flex items-start gap-2.5">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-700 font-extrabold text-[11px] flex-shrink-0 mt-0.5">
-                4
+                5
               </span>
               <span>
                 Una vez confirmado el pago, quedas autorizado y puedes
@@ -199,6 +208,18 @@ function InstruccionesPolla() {
               </span>
             </li>
           </ol>
+
+          <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 flex items-start gap-2.5">
+            <span className="text-lg leading-none mt-0.5">⚠️</span>
+            <div className="text-xs text-amber-900 leading-relaxed">
+              <strong className="font-bold">Importante:</strong> el correo de
+              confirmación puede llegar a la carpeta de{" "}
+              <strong>Spam</strong> o <strong>Correo no deseado</strong>. Si
+              no lo ves en la bandeja de entrada en unos minutos, revisa
+              esas carpetas y marca el correo como "No es spam" para futuras
+              notificaciones.
+            </div>
+          </div>
         </section>
 
         {/* 2. Grupo de WhatsApp opcional */}
@@ -227,51 +248,88 @@ function InstruccionesPolla() {
             Después de cada partido finalizado, tu pronóstico se compara con
             el marcador real y obtienes:
           </p>
-          <ul className="space-y-1.5 ml-1">
+          <ul className="space-y-3 ml-1">
             <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-brand-100 text-brand-700 font-extrabold text-xs ring-1 ring-brand-200">
+              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-brand-100 text-brand-700 font-extrabold text-xs ring-1 ring-brand-200 mt-0.5">
                 4 pts
               </span>
-              <span className="leading-snug pt-1">
-                <strong>Marcador exacto</strong> — aciertas los dos goles
-                tal cual.
-              </span>
+              <div className="leading-snug">
+                <div>
+                  <strong>Acierto exacto del marcador.</strong>
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  Ejemplo: predijiste <span className="font-mono">2–1</span>{" "}
+                  · resultado real <span className="font-mono">2–1</span>.
+                </div>
+              </div>
             </li>
             <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-brand-50 text-brand-700 font-extrabold text-xs ring-1 ring-brand-200">
+              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-brand-50 text-brand-700 font-extrabold text-xs ring-1 ring-brand-200 mt-0.5">
                 3 pts
               </span>
-              <span className="leading-snug pt-1">
-                Aciertas el <strong>ganador</strong> (o el empate) y además
-                uno de los dos marcadores.
-              </span>
+              <div className="leading-snug">
+                <div>
+                  Acierto del <strong>ganador</strong> más uno de los dos
+                  marcadores.
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  Ejemplo: predijiste <span className="font-mono">2–0</span>{" "}
+                  · resultado real <span className="font-mono">2–1</span>{" "}
+                  (acertaste que ganaba el local y el 2 del local).
+                </div>
+              </div>
             </li>
             <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-gold-100 text-gold-800 font-extrabold text-xs ring-1 ring-gold-300">
+              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-gold-100 text-gold-800 font-extrabold text-xs ring-1 ring-gold-300 mt-0.5">
                 2 pts
               </span>
-              <span className="leading-snug pt-1">
-                Aciertas solo al <strong>ganador</strong>, o predices empate
-                correctamente sin acertar el marcador.
-              </span>
+              <div className="leading-snug">
+                <div>
+                  Acierto solo del <strong>ganador</strong> (o empate
+                  correctamente predicho) sin coincidir ninguno de los
+                  marcadores.
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  Ejemplo 1: predijiste <span className="font-mono">3–1</span>{" "}
+                  · resultado <span className="font-mono">2–0</span> (ganó
+                  el local). Ejemplo 2: predijiste{" "}
+                  <span className="font-mono">1–1</span> · resultado{" "}
+                  <span className="font-mono">0–0</span> (empate).
+                </div>
+              </div>
             </li>
             <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-amber-50 text-amber-700 font-extrabold text-xs ring-1 ring-amber-200">
+              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-amber-50 text-amber-700 font-extrabold text-xs ring-1 ring-amber-200 mt-0.5">
                 1 pt
               </span>
-              <span className="leading-snug pt-1">
-                Aciertas uno de los marcadores pero te equivocas con el
-                ganador (p. ej. predijiste empate y hubo ganador).
-              </span>
+              <div className="leading-snug">
+                <div>
+                  Acierto de uno de los marcadores pero{" "}
+                  <strong>ganador equivocado</strong> (predijiste empate y
+                  hubo ganador, o predijiste ganador y hubo empate).
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  Ejemplo: predijiste <span className="font-mono">2–2</span>{" "}
+                  · resultado <span className="font-mono">2–1</span>{" "}
+                  (acertaste el 2 del local pero pensabas empate).
+                </div>
+              </div>
             </li>
             <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-rose-50 text-rose-700 font-extrabold text-xs ring-1 ring-rose-200">
+              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-rose-50 text-rose-700 font-extrabold text-xs ring-1 ring-rose-200 mt-0.5">
                 0 pts
               </span>
-              <span className="leading-snug pt-1">
-                Predices al equipo equivocado como ganador, o no aciertas
-                nada.
-              </span>
+              <div className="leading-snug">
+                <div>
+                  Predicción del <strong>ganador contrario</strong> al real,
+                  o ningún marcador acertado.
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  Ejemplo: predijiste <span className="font-mono">1–2</span>{" "}
+                  (ganaba visitante) · resultado{" "}
+                  <span className="font-mono">2–1</span> (ganó local).
+                </div>
+              </div>
             </li>
           </ul>
         </section>
