@@ -1,0 +1,89 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    background-image:
+      radial-gradient(at 20% -10%, rgb(16 185 129 / 0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 110%, rgb(245 158 11 / 0.06) 0px, transparent 50%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl bg-white border border-slate-200/80 shadow-card;
+  }
+  .card-elevated {
+    @apply rounded-2xl bg-white border border-slate-200/80 shadow-lift;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 hover:bg-brand-700 text-white shadow-soft hover:shadow-card;
+  }
+  .btn-secondary {
+    @apply btn bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300;
+  }
+  .btn-ghost {
+    @apply btn text-slate-600 hover:text-slate-900 hover:bg-slate-100;
+  }
+  .btn-gold {
+    @apply btn bg-gold-500 hover:bg-gold-600 text-white shadow-soft;
+  }
+  .btn-danger {
+    @apply btn bg-rose-500 hover:bg-rose-600 text-white;
+  }
+
+  .input {
+    @apply w-full rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:ring-4 focus:ring-brand-100 focus:border-brand-500;
+  }
+  .label {
+    @apply block text-sm font-medium text-slate-700 mb-1.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset;
+  }
+  .badge-brand {
+    @apply badge bg-brand-50 text-brand-700 ring-brand-200;
+  }
+  .badge-gold {
+    @apply badge bg-gold-50 text-gold-700 ring-gold-200;
+  }
+  .badge-slate {
+    @apply badge bg-slate-100 text-slate-600 ring-slate-200;
+  }
+  .badge-rose {
+    @apply badge bg-rose-50 text-rose-700 ring-rose-200;
+  }
+  .badge-blue {
+    @apply badge bg-blue-50 text-blue-700 ring-blue-200;
+  }
+
+  .pill {
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-colors;
+  }
+  .pill-active {
+    @apply pill bg-slate-900 text-white;
+  }
+  .pill-inactive {
+    @apply pill bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50;
+  }
+}

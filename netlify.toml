@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA: cualquier ruta no-asset cae a index.html para que React Router
+# maneje el routing client-side (sin esto, refrescar /mundial da 404).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

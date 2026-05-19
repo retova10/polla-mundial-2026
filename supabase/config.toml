@@ -1,0 +1,16 @@
+# Supabase project config. Solo lo necesario para que `supabase functions
+# deploy` use la configuración correcta de cada función.
+#
+# IMPORTANTE: verify_jwt = false significa que el gateway de Supabase NO
+# valida el JWT antes de invocar la función. La función misma debe verificar
+# autenticación si lo necesita (create-user lo hace contra profiles).
+# Sin esto, el preflight CORS (OPTIONS) es bloqueado con 401 porque no
+# lleva token, y el browser no permite el POST.
+
+project_id = "ieljohrzaqfshywnkjtl"
+
+[functions.create-user]
+verify_jwt = false
+
+[functions.notify-new-user]
+verify_jwt = false
