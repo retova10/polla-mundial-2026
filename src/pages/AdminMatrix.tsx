@@ -38,10 +38,12 @@ function TeamMini({
   const flag = !isPlaceholder ? getFlagUrl(name, 20) : null;
   const c = !isPlaceholder ? getCountry(name) : null;
   const square = !isPlaceholder && isSquareFlag(name);
+  // Si el equipo está en la tabla de países, usamos su código FIFA oficial.
+  // Si no (placeholder o nombre desconocido), caemos al slug de 3 letras.
   const label = isPlaceholder
     ? name.slice(0, 4)
     : c
-    ? shortName(c.name)
+    ? c.fifa
     : shortName(name);
   return (
     <div

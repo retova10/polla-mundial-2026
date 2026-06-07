@@ -69,6 +69,15 @@ export default function Layout() {
             >
               📊 Matriz
             </NavLink>
+            <NavLink
+              to="/reglas"
+              className={({ isActive }) =>
+                isActive ? "pill-active" : "pill-inactive"
+              }
+              title="Reglas y sistema de puntaje"
+            >
+              📖 Reglas
+            </NavLink>
             {profile?.role === "admin" && (
               <>
                 <NavLink

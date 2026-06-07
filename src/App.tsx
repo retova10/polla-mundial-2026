@@ -9,6 +9,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Mundial from "./pages/Mundial";
+import Reglas from "./pages/Reglas";
 import Admin from "./pages/Admin";
 import AdminScores from "./pages/AdminScores";
 import AdminPollas from "./pages/AdminPollas";
@@ -33,6 +34,7 @@ export default function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="mundial" element={<Mundial />} />
+            <Route path="reglas" element={<Reglas />} />
             {/* Matriz: accesible a TODOS los jugadores; el componente redacta
                 las celdas de partidos no finalizados para roles no-admin. */}
             <Route path="matrix" element={<AdminMatrix />} />
