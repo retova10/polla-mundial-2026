@@ -99,6 +99,8 @@ export default function Register() {
           </p>
         </div>
 
+        <PasosInscripcion />
+
         <form onSubmit={handleSubmit} className="card-elevated p-7 space-y-5">
           <div>
             <label className="label">Nombre completo</label>
@@ -199,6 +201,75 @@ export default function Register() {
           </p>
         </form>
       </div>
+    </div>
+  );
+}
+
+const NEQUI = "3234965340";
+
+const PASOS: Array<{ title: string; detail: React.ReactNode }> = [
+  {
+    title: "Crea tu cuenta",
+    detail: "Completa el formulario de abajo con tus datos.",
+  },
+  {
+    title: "Confirma tu email",
+    detail: (
+      <>
+        Te llegará un correo de confirmación. Revisa también las carpetas de{" "}
+        <strong className="text-slate-700">Spam</strong> o{" "}
+        <strong className="text-slate-700">Correo no deseado</strong>.
+      </>
+    ),
+  },
+  {
+    title: "Haz el pago por Nequi",
+    detail: (
+      <>
+        Realiza la consignación a Nequi{" "}
+        <strong className="text-slate-900 font-mono">{NEQUI}</strong> y guarda
+        el comprobante.
+      </>
+    ),
+  },
+  {
+    title: "Envía el comprobante",
+    detail: (
+      <>
+        Escribe al número de Nequi{" "}
+        <strong className="text-slate-900 font-mono">{NEQUI}</strong> enviando
+        el comprobante y solicitando la activación de tu cuenta.
+      </>
+    ),
+  },
+  {
+    title: "¡Listo para jugar!",
+    detail:
+      "Una vez activada tu cuenta, podrás empezar a ingresar tus pronósticos.",
+  },
+];
+
+function PasosInscripcion() {
+  return (
+    <div className="card p-5 sm:p-6 mb-5">
+      <h2 className="font-display font-bold text-lg text-slate-900 flex items-center gap-2 mb-4">
+        <span>🎟️</span> Cómo inscribirte
+      </h2>
+      <ol className="space-y-3.5">
+        {PASOS.map((paso, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-100 text-brand-700 font-extrabold text-sm flex-shrink-0">
+              {i + 1}
+            </span>
+            <div className="leading-snug pt-0.5">
+              <div className="font-semibold text-slate-900 text-sm">
+                {paso.title}
+              </div>
+              <p className="text-sm text-slate-500 mt-0.5">{paso.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

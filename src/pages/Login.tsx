@@ -1,6 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import { pointsFor } from "../lib/scoring";
+import {
+  CATEGORY_META,
+  CATEGORY_ORDER,
+  EXAMPLES,
+  evalExample,
+} from "../lib/rules";
 
 export default function Login() {
   const { session, loading, signIn } = useAuth();
@@ -244,93 +251,55 @@ function InstruccionesPolla() {
           <h3 className="font-bold text-slate-900 flex items-center gap-2 mb-2">
             <span className="text-base">🎯</span> Sistema de puntos
           </h3>
-          <p className="leading-relaxed mb-2">
+          <p className="leading-relaxed mb-3">
             Después de cada partido finalizado, tu pronóstico se compara con
             el marcador real y obtienes:
           </p>
           <ul className="space-y-3 ml-1">
-            <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-brand-100 text-brand-700 font-extrabold text-xs ring-1 ring-brand-200 mt-0.5">
-                4 pts
-              </span>
-              <div className="leading-snug">
-                <div>
-                  <strong>Acierto exacto del marcador.</strong>
-                </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  Ejemplo: predijiste <span className="font-mono">2–1</span>{" "}
-                  · resultado real <span className="font-mono">2–1</span>.
-                </div>
-              </div>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-brand-50 text-brand-700 font-extrabold text-xs ring-1 ring-brand-200 mt-0.5">
-                3 pts
-              </span>
-              <div className="leading-snug">
-                <div>
-                  Acierto del <strong>ganador</strong> más uno de los dos
-                  marcadores.
-                </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  Ejemplo: predijiste <span className="font-mono">2–0</span>{" "}
-                  · resultado real <span className="font-mono">2–1</span>{" "}
-                  (acertaste que ganaba el local y el 2 del local).
-                </div>
-              </div>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-gold-100 text-gold-800 font-extrabold text-xs ring-1 ring-gold-300 mt-0.5">
-                2 pts
-              </span>
-              <div className="leading-snug">
-                <div>
-                  Acierto solo del <strong>ganador</strong> (o empate
-                  correctamente predicho) sin coincidir ninguno de los
-                  marcadores.
-                </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  Ejemplo 1: predijiste <span className="font-mono">3–1</span>{" "}
-                  · resultado <span className="font-mono">2–0</span> (ganó
-                  el local). Ejemplo 2: predijiste{" "}
-                  <span className="font-mono">1–1</span> · resultado{" "}
-                  <span className="font-mono">0–0</span> (empate).
-                </div>
-              </div>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-amber-50 text-amber-700 font-extrabold text-xs ring-1 ring-amber-200 mt-0.5">
-                1 pt
-              </span>
-              <div className="leading-snug">
-                <div>
-                  Acierto de uno de los marcadores pero{" "}
-                  <strong>ganador equivocado</strong> (predijiste empate y
-                  hubo ganador, o predijiste ganador y hubo empate).
-                </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  Ejemplo: predijiste <span className="font-mono">2–2</span>{" "}
-                  · resultado <span className="font-mono">2–1</span>{" "}
-                  (acertaste el 2 del local pero pensabas empate).
-                </div>
-              </div>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 bg-rose-50 text-rose-700 font-extrabold text-xs ring-1 ring-rose-200 mt-0.5">
-                0 pts
-              </span>
-              <div className="leading-snug">
-                <div>
-                  Predicción del <strong>ganador contrario</strong> al real,
-                  o ningún marcador acertado.
-                </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  Ejemplo: predijiste <span className="font-mono">1–2</span>{" "}
-                  (ganaba visitante) · resultado{" "}
-                  <span className="font-mono">2–1</span> (ganó local).
-                </div>
-              </div>
-            </li>
+            {CATEGORY_ORDER.map((cat) => {
+              const meta = CATEGORY_META[cat];
+              const pts = pointsFor(cat);
+              return (
+                <li key={cat} className="flex items-start gap-2.5">
+                  <span
+                    className={`inline-flex items-center justify-center w-12 h-7 px-2 rounded-md flex-shrink-0 font-extrabold text-xs ring-1 ring-inset mt-0.5 ${meta.badge} ${meta.ring}`}
+                  >
+                    {pts === 1 ? "1 pt" : `${pts} pts`}
+                  </span>
+                  <div className="leading-snug">
+                    <div>
+                      <strong className="text-slate-900">{meta.label}.</strong>{" "}
+                      {meta.description}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                      {EXAMPLES[cat].map((ex, i) => {
+                        const { points } = evalExample(ex);
+                        return (
+                          <span key={i}>
+                            <span className="font-mono">
+                              {ex.pred[0]}–{ex.pred[1]}
+                            </span>{" "}
+                            →{" "}
+                            <span className="font-mono">
+                              {ex.real[0]}–{ex.real[1]}
+                            </span>{" "}
+                            <span className="font-semibold text-slate-600">
+                              ({points} pt{points === 1 ? "" : "s"})
+                            </span>
+                            {ex.note ? (
+                              <span className="text-slate-400">
+                                {" "}
+                                · {ex.note}
+                              </span>
+                            ) : null}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
 
