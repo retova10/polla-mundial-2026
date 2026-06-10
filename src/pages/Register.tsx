@@ -12,7 +12,7 @@ export default function Register() {
   const [whatsappOptin, setWhatsappOptin] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<"approval" | "verify" | null>(null);
+  const [success, setSuccess] = useState(false);
 
   if (!loading && session && !success) return <Navigate to="/" replace />;
 
@@ -45,36 +45,24 @@ export default function Register() {
       setError(err.message);
       return;
     }
-    if (!data.session) {
-      setSuccess("verify");
-    } else {
-      setSuccess("approval");
-      await supabase.auth.signOut();
-    }
+    setSuccess(true);
+    // Con la confirmación de email desactivada, signUp devuelve sesión activa;
+    // cerramos sesión para que el flujo siga siendo: pago → aprobación del admin.
+    if (data.session) await supabase.auth.signOut();
   }
 
   if (success) {
     return (
       <div className="min-h-screen grid place-items-center px-4">
         <div className="card-elevated p-10 max-w-md text-center space-y-4 animate-slide-up">
-          <div className="text-6xl">{success === "verify" ? "📧" : "⏳"}</div>
+          <div className="text-6xl">⏳</div>
           <h2 className="font-display font-bold text-3xl text-slate-900">
-            {success === "verify" ? "Revisa tu correo" : "Cuenta creada"}
+            Cuenta creada
           </h2>
           <p className="text-slate-600 leading-relaxed">
-            {success === "verify" ? (
-              <>
-                Te enviamos un enlace de confirmación a{" "}
-                <strong className="text-slate-900">{email}</strong>. Confirma tu
-                cuenta y luego espera a que el administrador te apruebe.
-              </>
-            ) : (
-              <>
-                Tu cuenta está pendiente de aprobación por el administrador.
-                Cuando te apruebe, podrás iniciar sesión y enviar tus
-                marcadores.
-              </>
-            )}
+            Ya casi. Realiza el pago por Nequi y envía el comprobante para que
+            el administrador active tu cuenta. Cuando te apruebe, podrás iniciar
+            sesión y enviar tus pronósticos.
           </p>
           <Link to="/login" className="btn-primary inline-flex">
             Ir al login
@@ -213,16 +201,6 @@ const PASOS: Array<{ title: string; detail: React.ReactNode }> = [
     detail: "Completa el formulario de abajo con tus datos.",
   },
   {
-    title: "Confirma tu email",
-    detail: (
-      <>
-        Te llegará un correo de confirmación. Revisa también las carpetas de{" "}
-        <strong className="text-slate-700">Spam</strong> o{" "}
-        <strong className="text-slate-700">Correo no deseado</strong>.
-      </>
-    ),
-  },
-  {
     title: "Haz el pago por Nequi",
     detail: (
       <>
@@ -241,6 +219,11 @@ const PASOS: Array<{ title: string; detail: React.ReactNode }> = [
         el comprobante y solicitando la activación de tu cuenta.
       </>
     ),
+  },
+  {
+    title: "Espera la activación",
+    detail:
+      "El administrador verifica tu pago y activa tu cuenta.",
   },
   {
     title: "¡Listo para jugar!",

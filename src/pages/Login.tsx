@@ -182,22 +182,13 @@ function InstruccionesPolla() {
                 2
               </span>
               <span>
-                <strong>Confirma tu correo</strong>: recibirás un email de
-                confirmación. Haz clic en el enlace para validar tu cuenta.
-              </span>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-700 font-extrabold text-[11px] flex-shrink-0 mt-0.5">
-                3
-              </span>
-              <span>
                 Realiza el pago de <strong>$50.000 COP</strong> a Nequi{" "}
                 <strong className="text-slate-900 font-mono">3234965340</strong>.
               </span>
             </li>
             <li className="flex items-start gap-2.5">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-700 font-extrabold text-[11px] flex-shrink-0 mt-0.5">
-                4
+                3
               </span>
               <span>
                 Envía el comprobante por WhatsApp al{" "}
@@ -207,7 +198,7 @@ function InstruccionesPolla() {
             </li>
             <li className="flex items-start gap-2.5">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-700 font-extrabold text-[11px] flex-shrink-0 mt-0.5">
-                5
+                4
               </span>
               <span>
                 Una vez confirmado el pago, quedas autorizado y puedes
@@ -215,18 +206,6 @@ function InstruccionesPolla() {
               </span>
             </li>
           </ol>
-
-          <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 flex items-start gap-2.5">
-            <span className="text-lg leading-none mt-0.5">⚠️</span>
-            <div className="text-xs text-amber-900 leading-relaxed">
-              <strong className="font-bold">Importante:</strong> el correo de
-              confirmación puede llegar a la carpeta de{" "}
-              <strong>Spam</strong> o <strong>Correo no deseado</strong>. Si
-              no lo ves en la bandeja de entrada en unos minutos, revisa
-              esas carpetas y marca el correo como "No es spam" para futuras
-              notificaciones.
-            </div>
-          </div>
         </section>
 
         {/* 2. Grupo de WhatsApp opcional */}
