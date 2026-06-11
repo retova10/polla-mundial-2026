@@ -9,7 +9,7 @@ import {
   isLocked,
   msUntilLock,
 } from "../lib/time";
-import { getFlagUrl, isSquareFlag } from "../data/countries";
+import { getCountry, getFlagUrl, isSquareFlag } from "../data/countries";
 
 interface Props {
   match: Match;
@@ -30,6 +30,7 @@ function TeamSide({
 }) {
   const flag = !isPlaceholder ? getFlagUrl(name, 60) : null;
   const square = !isPlaceholder && isSquareFlag(name);
+  const country = !isPlaceholder ? getCountry(name) : null;
   return (
     <div
       className={`flex ${
@@ -55,17 +56,30 @@ function TeamSide({
         )}
       </div>
       <div className="min-w-0">
-        <div
-          className={`text-sm sm:text-base font-bold truncate ${
-            isPlaceholder ? "font-mono text-slate-400" : "text-slate-900"
-          }`}
-        >
-          {name}
-        </div>
-        {isPlaceholder && (
-          <div className="text-[10px] text-slate-400 leading-none mt-0.5">
-            Por definir
-          </div>
+        {country ? (
+          <>
+            <div className="text-base sm:text-lg font-extrabold text-slate-900 leading-none tracking-wide">
+              {country.fifa}
+            </div>
+            <div className="text-[10px] sm:text-xs text-slate-500 leading-tight truncate mt-0.5">
+              {country.name}
+            </div>
+          </>
+        ) : (
+          <>
+            <div
+              className={`text-sm sm:text-base font-bold truncate ${
+                isPlaceholder ? "font-mono text-slate-400" : "text-slate-900"
+              }`}
+            >
+              {name}
+            </div>
+            {isPlaceholder && (
+              <div className="text-[10px] text-slate-400 leading-none mt-0.5">
+                Por definir
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
