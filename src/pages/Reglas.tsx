@@ -135,6 +135,54 @@ export default function Reglas() {
         </div>
       </section>
 
+      {/* Premios y empates */}
+      <section className="card p-5 sm:p-6 mb-6">
+        <h2 className="font-display font-bold text-xl text-slate-900 mb-3">
+          Premios y empates
+        </h2>
+        <p className="text-sm text-slate-600 leading-relaxed mb-4">
+          El total recaudado se reparte entre los{" "}
+          <strong className="text-slate-800">dos primeros puestos</strong> del
+          ranking general:
+        </p>
+        <div className="grid grid-cols-2 gap-3 max-w-sm">
+          <div className="rounded-xl bg-gradient-to-b from-gold-100 to-gold-50 ring-1 ring-gold-300 p-3 text-center">
+            <div className="text-2xl">🥇</div>
+            <div className="font-display font-extrabold text-2xl text-gold-700 mt-1">
+              70%
+            </div>
+            <div className="text-[11px] uppercase tracking-wider text-gold-800 font-bold">
+              1° puesto
+            </div>
+          </div>
+          <div className="rounded-xl bg-gradient-to-b from-slate-100 to-slate-50 ring-1 ring-slate-300 p-3 text-center">
+            <div className="text-2xl">🥈</div>
+            <div className="font-display font-extrabold text-2xl text-slate-700 mt-1">
+              30%
+            </div>
+            <div className="text-[11px] uppercase tracking-wider text-slate-700 font-bold">
+              2° puesto
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 flex items-start gap-2.5">
+          <span className="text-lg leading-none mt-0.5">🤝</span>
+          <div className="text-sm text-blue-900 leading-relaxed">
+            <strong className="font-bold">Empates en el podio:</strong> si dos o
+            más jugadores terminan empatados en el{" "}
+            <strong>primer o segundo lugar</strong>, el premio correspondiente a
+            ese puesto se{" "}
+            <strong>reparte en partes iguales</strong> entre todos los
+            empatados.
+            <span className="block text-xs text-blue-700/90 mt-1.5">
+              Ejemplo: si dos personas empatan en el 1° puesto, se reparten el
+              70% (35% cada una).
+            </span>
+          </div>
+        </div>
+      </section>
+
       {/* Notas / reglas generales */}
       <section className="card p-5 sm:p-6">
         <h2 className="font-display font-bold text-xl text-slate-900 mb-3">

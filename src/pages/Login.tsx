@@ -327,8 +327,9 @@ function InstruccionesPolla() {
             </div>
           </div>
           <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-            Desempates: si dos pollas terminan con el mismo total de puntos,
-            se favorece a quien tenga más marcadores exactos.
+            Empates: si dos o más jugadores terminan empatados en el primer o
+            segundo lugar, el premio de ese puesto se reparte en partes iguales
+            entre todos los empatados.
           </p>
         </section>
 
