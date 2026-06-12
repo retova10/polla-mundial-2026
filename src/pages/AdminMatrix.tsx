@@ -241,7 +241,7 @@ export default function AdminMatrix() {
         </p>
       </header>
 
-      <section className="card p-4 sm:p-5 sticky top-[68px] z-20">
+      <section className="card p-4 sm:p-5 sm:sticky sm:top-[68px] z-20">
         <div className="flex flex-wrap items-center gap-2">
           <input
             type="search"
