@@ -345,12 +345,12 @@ export default function AdminMatrix() {
               <thead>
                 <tr>
                   <th
-                    className="sticky left-0 top-0 z-30 bg-slate-50 border-b border-r border-slate-200 px-3 py-2 text-left text-slate-500 font-semibold uppercase tracking-wider text-[10px] w-[220px] min-w-[220px]"
+                    className="sticky left-0 top-0 z-30 bg-slate-50 border-b border-r border-slate-200 px-2 sm:px-3 py-2 text-left text-slate-500 font-semibold uppercase tracking-wider text-[10px] w-[136px] min-w-[136px] sm:w-[220px] sm:min-w-[220px]"
                   >
                     Polla
                   </th>
                   <th
-                    className="sticky left-[220px] top-0 z-30 bg-slate-50 border-b border-r-2 border-slate-200 border-r-slate-300 px-2 py-2 text-center text-slate-500 font-semibold uppercase tracking-wider text-[10px] w-[72px] min-w-[72px]"
+                    className="sticky left-[136px] sm:left-[220px] top-0 z-30 bg-slate-50 border-b border-r-2 border-slate-200 border-r-slate-300 px-1 sm:px-2 py-2 text-center text-slate-500 font-semibold uppercase tracking-wider text-[10px] w-[52px] min-w-[52px] sm:w-[72px] sm:min-w-[72px]"
                   >
                     Total
                   </th>
@@ -404,10 +404,10 @@ export default function AdminMatrix() {
 
                 {showActual && (
                   <tr>
-                    <th className="sticky left-0 z-20 bg-slate-100 border-b border-r border-slate-200 px-3 py-1.5 text-left text-[10px] uppercase tracking-wider font-bold text-slate-600 w-[220px] min-w-[220px]">
+                    <th className="sticky left-0 z-20 bg-slate-100 border-b border-r border-slate-200 px-2 sm:px-3 py-1.5 text-left text-[10px] uppercase tracking-wider font-bold text-slate-600 w-[136px] min-w-[136px] sm:w-[220px] sm:min-w-[220px]">
                       Marcador real
                     </th>
-                    <th className="sticky left-[220px] z-20 bg-slate-100 border-b border-r-2 border-slate-200 border-r-slate-300 px-2 py-1.5 text-center text-[10px] font-bold text-slate-400 w-[72px] min-w-[72px]">
+                    <th className="sticky left-[136px] sm:left-[220px] z-20 bg-slate-100 border-b border-r-2 border-slate-200 border-r-slate-300 px-1 sm:px-2 py-1.5 text-center text-[10px] font-bold text-slate-400 w-[52px] min-w-[52px] sm:w-[72px] sm:min-w-[72px]">
                       —
                     </th>
                     {visibleMatches.map((m, i) => {
@@ -444,10 +444,10 @@ export default function AdminMatrix() {
                   return (
                     <tr key={e.id} className="group hover:bg-slate-50/60">
                       <th
-                        className="sticky left-0 z-10 bg-white group-hover:bg-slate-50/60 border-b border-r border-slate-200 px-3 py-2 text-left align-middle w-[220px] min-w-[220px]"
+                        className="sticky left-0 z-10 bg-white group-hover:bg-slate-50/60 border-b border-r border-slate-200 px-2 sm:px-3 py-2 text-left align-middle w-[136px] min-w-[136px] sm:w-[220px] sm:min-w-[220px]"
                       >
-                        <div className="flex items-center gap-2">
-                          <div className="flex flex-col items-center justify-center w-6 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="flex flex-col items-center justify-center w-5 sm:w-6 flex-shrink-0">
                             <span
                               className={`text-[10px] font-extrabold tabular-nums ${
                                 isLeader ? "text-gold-600" : "text-slate-400"
@@ -456,7 +456,7 @@ export default function AdminMatrix() {
                               {isLeader ? "🏆" : `#${rank + 1}`}
                             </span>
                           </div>
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 grid place-items-center text-white font-bold text-[11px] flex-shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 hidden sm:grid place-items-center text-white font-bold text-[11px] flex-shrink-0">
                             {(prof?.display_name ?? prof?.email ?? "?")[0]?.toUpperCase()}
                           </div>
                           <div className="min-w-0">
@@ -486,7 +486,7 @@ export default function AdminMatrix() {
                         </div>
                       </th>
                       <th
-                        className={`sticky left-[220px] z-10 bg-white group-hover:bg-slate-50/60 border-b border-r-2 border-slate-200 border-r-slate-300 px-2 py-2 text-center align-middle w-[72px] min-w-[72px] ${
+                        className={`sticky left-[136px] sm:left-[220px] z-10 bg-white group-hover:bg-slate-50/60 border-b border-r-2 border-slate-200 border-r-slate-300 px-1 sm:px-2 py-2 text-center align-middle w-[52px] min-w-[52px] sm:w-[72px] sm:min-w-[72px] ${
                           isLeader ? "bg-gold-50 group-hover:bg-gold-50" : ""
                         }`}
                         title={`${score.exact} exactos · ${score.winner_score} ganador+marcador · ${score.winner_or_draw} ganador/empate · ${score.score_only} marcador · ${score.wrong} fallados`}

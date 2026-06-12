@@ -22,23 +22,17 @@ interface Props {
 function TeamSide({
   name,
   isPlaceholder,
-  align,
 }: {
   name: string;
   isPlaceholder: boolean;
-  align: "left" | "right";
 }) {
   const flag = !isPlaceholder ? getFlagUrl(name, 60) : null;
   const square = !isPlaceholder && isSquareFlag(name);
   const country = !isPlaceholder ? getCountry(name) : null;
   return (
-    <div
-      className={`flex ${
-        align === "right" ? "flex-row-reverse text-right" : "text-left"
-      } items-center gap-2.5 min-w-0`}
-    >
+    <div className="flex flex-col items-center text-center gap-1 min-w-0">
       <div
-        className={`w-10 h-7 sm:w-12 sm:h-8 flex-shrink-0 rounded-md overflow-hidden border border-slate-200 grid place-items-center ${
+        className={`w-12 h-8 sm:w-14 sm:h-9 flex-shrink-0 rounded-md overflow-hidden border border-slate-200 grid place-items-center ${
           square ? "bg-white" : "bg-slate-100"
         }`}
       >
@@ -55,33 +49,31 @@ function TeamSide({
           </span>
         )}
       </div>
-      <div className="min-w-0">
-        {country ? (
-          <>
-            <div className="text-base sm:text-lg font-extrabold text-slate-900 leading-none tracking-wide">
-              {country.fifa}
+      {country ? (
+        <div className="w-full">
+          <div className="text-base sm:text-lg font-extrabold text-slate-900 leading-none tracking-wide">
+            {country.fifa}
+          </div>
+          <div className="text-[11px] sm:text-xs text-slate-500 leading-tight mt-0.5 break-words">
+            {country.name}
+          </div>
+        </div>
+      ) : (
+        <div className="w-full">
+          <div
+            className={`text-xs sm:text-sm font-bold leading-tight break-words ${
+              isPlaceholder ? "font-mono text-slate-400" : "text-slate-900"
+            }`}
+          >
+            {name}
+          </div>
+          {isPlaceholder && (
+            <div className="text-[10px] text-slate-400 leading-none mt-0.5">
+              Por definir
             </div>
-            <div className="text-[10px] sm:text-xs text-slate-500 leading-tight truncate mt-0.5">
-              {country.name}
-            </div>
-          </>
-        ) : (
-          <>
-            <div
-              className={`text-sm sm:text-base font-bold truncate ${
-                isPlaceholder ? "font-mono text-slate-400" : "text-slate-900"
-              }`}
-            >
-              {name}
-            </div>
-            {isPlaceholder && (
-              <div className="text-[10px] text-slate-400 leading-none mt-0.5">
-                Por definir
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -178,7 +170,6 @@ export default function MatchCard({ match, entryId, entryPaid, prediction, onSav
         <TeamSide
           name={match.home_team}
           isPlaceholder={match.home_is_placeholder}
-          align="left"
         />
 
         <div className="flex items-center gap-1.5">
@@ -210,7 +201,6 @@ export default function MatchCard({ match, entryId, entryPaid, prediction, onSav
         <TeamSide
           name={match.away_team}
           isPlaceholder={match.away_is_placeholder}
-          align="right"
         />
       </div>
 
