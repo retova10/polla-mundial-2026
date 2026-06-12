@@ -10,7 +10,7 @@ import type {
 import { getCountry, getFlagUrl, isSquareFlag } from "../data/countries";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { toColombia } from "../lib/time";
+import { isLocked, toColombia } from "../lib/time";
 import {
   categorize,
   computeEntryScore,
@@ -92,6 +92,14 @@ export default function AdminMatrix() {
   );
   const [search, setSearch] = useState("");
   const [showActual, setShowActual] = useState(true);
+  // Reloj que se refresca solo para revelar automáticamente los pronósticos
+  // en cuanto un partido cruza su bloqueo (2h antes del inicio).
+  const [now, setNow] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -233,8 +241,8 @@ export default function AdminMatrix() {
             <>
               {" "}
               <span className="text-slate-400">
-                Los pronósticos de cada partido se revelan cuando el partido
-                termina.
+                Los pronósticos de cada partido se revelan en cuanto se bloquea
+                (2 horas antes del inicio).
               </span>
             </>
           )}
@@ -511,11 +519,14 @@ export default function AdminMatrix() {
                         const pr = inner?.get(m.id) ?? null;
                         const cat = categorize(pr, m);
                         const pts = pointsFor(cat);
-                        // Los no-admins solo ven pronósticos de partidos
-                        // ya finalizados. Para los demás, mostramos un
-                        // 🔒 sin revelar el marcador ajeno.
-                        const redacted =
-                          !isAdmin && m.status !== "finished";
+                        // Transparencia: los pronósticos de cada partido se
+                        // revelan en cuanto el partido se BLOQUEA (2h antes del
+                        // inicio) — ya no se pueden modificar — o cuando
+                        // finaliza. Antes del bloqueo, los no-admins ven 🔒.
+                        const revealed =
+                          m.status === "finished" ||
+                          isLocked(m.kickoff_at, now);
+                        const redacted = !isAdmin && !revealed;
                         const cls = redacted
                           ? "bg-slate-50 text-slate-300"
                           : cellClasses(cat, !!pr);
@@ -527,7 +538,7 @@ export default function AdminMatrix() {
                             }`}
                             title={
                               redacted
-                                ? "Se revelará al finalizar el partido"
+                                ? "Se revelará cuando el partido se bloquee (2h antes del inicio)"
                                 : pr
                                 ? cat === "pending"
                                   ? "Partido aún no finalizado"
