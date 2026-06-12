@@ -102,36 +102,45 @@ export default function AdminMatrix() {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    Promise.all([
-      supabase
-        .from("matches")
-        .select("*")
-        .order("match_number", { ascending: true }),
-      supabase
-        .from("entries")
-        .select("*")
-        .order("created_at", { ascending: true }),
-      supabase.from("profiles").select("*"),
-      supabase.from("predictions").select("*"),
-    ]).then(([mRes, eRes, pRes, prRes]) => {
-      if (!mounted) return;
-      const err =
-        mRes.error || eRes.error || pRes.error || prRes.error;
+    let active = true;
+
+    async function load(background: boolean) {
+      const [mRes, eRes, pRes, prRes] = await Promise.all([
+        supabase
+          .from("matches")
+          .select("*")
+          .order("match_number", { ascending: true }),
+        supabase
+          .from("entries")
+          .select("*")
+          .order("created_at", { ascending: true }),
+        supabase.from("profiles").select("*"),
+        supabase.from("predictions").select("*"),
+      ]);
+      if (!active) return;
+      const err = mRes.error || eRes.error || pRes.error || prRes.error;
       if (err) {
-        setError(err.message);
-        setLoading(false);
+        // En refrescos de fondo no pisamos la vista con un error transitorio.
+        if (!background) {
+          setError(err.message);
+          setLoading(false);
+        }
         return;
       }
       setMatches((mRes.data ?? []) as Match[]);
       setEntries((eRes.data ?? []) as Entry[]);
       setProfiles((pRes.data ?? []) as Profile[]);
       setPredictions((prRes.data ?? []) as Prediction[]);
-      setLoading(false);
-    });
+      if (!background) setLoading(false);
+    }
+
+    load(false);
+    // Refresco en segundo plano: trae los pronósticos que la BD recién
+    // hace públicos al bloquearse cada partido, y los marcadores reales.
+    const id = setInterval(() => load(true), 60000);
     return () => {
-      mounted = false;
+      active = false;
+      clearInterval(id);
     };
   }, []);
 
