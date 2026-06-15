@@ -75,6 +75,35 @@ function TeamMini({
   );
 }
 
+function RankDelta({ delta }: { delta: number | null }) {
+  if (delta == null) return null;
+  if (delta === 0) {
+    return (
+      <span
+        title="Mantuvo su posición con el último resultado"
+        className="text-[9px] font-bold text-slate-300 leading-none"
+      >
+        =
+      </span>
+    );
+  }
+  const up = delta > 0;
+  const n = Math.abs(delta);
+  return (
+    <span
+      title={`${up ? "Subió" : "Bajó"} ${n} ${
+        n === 1 ? "puesto" : "puestos"
+      } con el último resultado`}
+      className={`inline-flex items-center text-[9px] font-extrabold tabular-nums leading-none ${
+        up ? "text-emerald-600" : "text-rose-500"
+      }`}
+    >
+      {up ? "▲" : "▼"}
+      {n}
+    </span>
+  );
+}
+
 export default function AdminMatrix() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
@@ -235,6 +264,77 @@ export default function AdminMatrix() {
     return () => ro.disconnect();
   }, [loading, error, visiblePollas.length, visibleMatches.length]);
 
+  // Movimiento de posiciones causado por el ÚLTIMO marcador: comparamos el
+  // ranking actual contra el ranking SIN el último partido finalizado. Como el
+  // Match no guarda cuándo se cargó el marcador, "el último" es el finalizado
+  // con kickoff más reciente (incluye los que comparten ese horario, p. ej. la
+  // última jornada de grupos que se juega simultánea).
+  const lastFinishedKickoff = useMemo(() => {
+    let max: string | null = null;
+    for (const m of matches) {
+      if (
+        m.status === "finished" &&
+        m.home_score != null &&
+        m.away_score != null &&
+        (max === null || m.kickoff_at > max)
+      )
+        max = m.kickoff_at;
+    }
+    return max;
+  }, [matches]);
+
+  const matchesBeforeLast = useMemo(
+    () =>
+      lastFinishedKickoff == null
+        ? matches
+        : matches.filter(
+            (m) =>
+              !(
+                m.status === "finished" &&
+                m.kickoff_at === lastFinishedKickoff
+              )
+          ),
+    [matches, lastFinishedKickoff]
+  );
+
+  // Solo tiene sentido mostrar movimiento si YA había resultados antes del
+  // último marcador; si no, el ranking previo es un empate a cero (ruido).
+  const hasPrevResults = useMemo(
+    () =>
+      matchesBeforeLast.some(
+        (m) =>
+          m.status === "finished" &&
+          m.home_score != null &&
+          m.away_score != null
+      ),
+    [matchesBeforeLast]
+  );
+
+  // Puesto previo (0-based) por entry, sobre el MISMO conjunto visible y con el
+  // mismo criterio de desempate que visiblePollas, pero con los puntos de antes
+  // del último marcador. Así el delta es comparable con el puesto mostrado.
+  const prevRankByEntry = useMemo(() => {
+    const scored = visiblePollas.map(({ entry, profile }) => {
+      const inner = predIndex.get(entry.id);
+      const preds = inner ? Array.from(inner.values()) : [];
+      return {
+        entry,
+        profile,
+        prev: computeEntryScore(preds, matchesBeforeLast),
+      };
+    });
+    scored.sort((a, b) => {
+      if (b.prev.points !== a.prev.points) return b.prev.points - a.prev.points;
+      if (b.prev.exact !== a.prev.exact) return b.prev.exact - a.prev.exact;
+      const an = a.profile?.display_name ?? a.profile?.email ?? "";
+      const bn = b.profile?.display_name ?? b.profile?.email ?? "";
+      return an.localeCompare(bn) || a.entry.name.localeCompare(b.entry.name);
+    });
+    const map = new Map<string, number>();
+    scored.forEach((s, i) => map.set(s.entry.id, i));
+    return map;
+  }, [visiblePollas, predIndex, matchesBeforeLast]);
+
   function cellClasses(cat: ScoreCategory, hasPred: boolean): string {
     switch (cat) {
       case "exact":
@@ -352,6 +452,13 @@ export default function AdminMatrix() {
               <span className="text-slate-400">—</span>
               sin pronóstico
             </span>
+            {hasPrevResults && (
+              <span className="inline-flex items-center gap-1">
+                <span className="text-emerald-600 font-bold">▲</span>
+                <span className="text-rose-500 font-bold">▼</span>
+                puestos ganados/perdidos con el último resultado
+              </span>
+            )}
           </div>
         </div>
       </section>
@@ -480,20 +587,26 @@ export default function AdminMatrix() {
                   const filled = inner?.size ?? 0;
                   const isLeader =
                     rank === 0 && score.points > 0;
+                  const prevRank = prevRankByEntry.get(e.id);
+                  const rankDelta =
+                    hasPrevResults && prevRank != null
+                      ? prevRank - rank
+                      : null;
                   return (
                     <tr key={e.id} className="group hover:bg-slate-50/60">
                       <th
                         className="sticky left-0 z-10 bg-white group-hover:bg-slate-50/60 border-b border-r border-slate-200 px-2 sm:px-3 py-2 text-left align-middle w-[136px] min-w-[136px] sm:w-[220px] sm:min-w-[220px]"
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
-                          <div className="flex flex-col items-center justify-center w-5 sm:w-6 flex-shrink-0">
+                          <div className="flex items-center gap-0.5 flex-shrink-0">
                             <span
-                              className={`text-[10px] font-extrabold tabular-nums ${
+                              className={`text-[10px] font-extrabold tabular-nums w-5 sm:w-6 text-center ${
                                 isLeader ? "text-gold-600" : "text-slate-400"
                               }`}
                             >
                               {isLeader ? "🏆" : `#${rank + 1}`}
                             </span>
+                            <RankDelta delta={rankDelta} />
                           </div>
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 hidden sm:grid place-items-center text-white font-bold text-[11px] flex-shrink-0">
                             {(prof?.display_name ?? prof?.email ?? "?")[0]?.toUpperCase()}
