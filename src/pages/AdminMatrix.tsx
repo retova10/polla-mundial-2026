@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type {
   Entry,
@@ -95,6 +95,11 @@ export default function AdminMatrix() {
   // Reloj que se refresca solo para revelar automáticamente los pronósticos
   // en cuanto un partido cruza su bloqueo (2h antes del inicio).
   const [now, setNow] = useState<Date>(new Date());
+
+  // La fila de encabezado de partidos tiene altura variable (equipos, fecha).
+  // La medimos para fijar la fila "Marcador real" justo debajo al hacer scroll.
+  const headerRowRef = useRef<HTMLTableRowElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30000);
@@ -219,6 +224,16 @@ export default function AdminMatrix() {
         return an.localeCompare(bn) || a.entry.name.localeCompare(b.entry.name);
       });
   }, [pollasWithScore, paidFilter, search]);
+
+  useLayoutEffect(() => {
+    const el = headerRowRef.current;
+    if (!el) return;
+    const measure = () => setHeaderHeight(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [loading, error, visiblePollas.length, visibleMatches.length]);
 
   function cellClasses(cat: ScoreCategory, hasPred: boolean): string {
     switch (cat) {
@@ -360,7 +375,7 @@ export default function AdminMatrix() {
           <div className="overflow-auto max-h-[calc(100vh-260px)]">
             <table className="border-collapse text-xs">
               <thead>
-                <tr>
+                <tr ref={headerRowRef}>
                   <th
                     className="sticky left-0 top-0 z-30 bg-slate-50 border-b border-r border-slate-200 px-2 sm:px-3 py-2 text-left text-slate-500 font-semibold uppercase tracking-wider text-[10px] w-[136px] min-w-[136px] sm:w-[220px] sm:min-w-[220px]"
                   >
@@ -421,10 +436,16 @@ export default function AdminMatrix() {
 
                 {showActual && (
                   <tr>
-                    <th className="sticky left-0 z-20 bg-slate-100 border-b border-r border-slate-200 px-2 sm:px-3 py-1.5 text-left text-[10px] uppercase tracking-wider font-bold text-slate-600 w-[136px] min-w-[136px] sm:w-[220px] sm:min-w-[220px]">
+                    <th
+                      style={{ top: headerHeight }}
+                      className="sticky left-0 z-30 bg-slate-100 border-b border-r border-slate-200 px-2 sm:px-3 py-1.5 text-left text-[10px] uppercase tracking-wider font-bold text-slate-600 w-[136px] min-w-[136px] sm:w-[220px] sm:min-w-[220px]"
+                    >
                       Marcador real
                     </th>
-                    <th className="sticky left-[136px] sm:left-[220px] z-20 bg-slate-100 border-b border-r-2 border-slate-200 border-r-slate-300 px-1 sm:px-2 py-1.5 text-center text-[10px] font-bold text-slate-400 w-[52px] min-w-[52px] sm:w-[72px] sm:min-w-[72px]">
+                    <th
+                      style={{ top: headerHeight }}
+                      className="sticky left-[136px] sm:left-[220px] z-30 bg-slate-100 border-b border-r-2 border-slate-200 border-r-slate-300 px-1 sm:px-2 py-1.5 text-center text-[10px] font-bold text-slate-400 w-[52px] min-w-[52px] sm:w-[72px] sm:min-w-[72px]"
+                    >
                       —
                     </th>
                     {visibleMatches.map((m, i) => {
@@ -438,7 +459,8 @@ export default function AdminMatrix() {
                       return (
                         <td
                           key={m.id}
-                          className={`bg-slate-100 border-b border-slate-200 px-1 py-1.5 text-center font-extrabold tabular-nums ${
+                          style={{ top: headerHeight }}
+                          className={`sticky z-20 bg-slate-100 border-b border-slate-200 px-1 py-1.5 text-center font-extrabold tabular-nums ${
                             has ? "text-slate-900" : "text-slate-300"
                           } ${
                             breakLeft ? "border-l-2 border-l-brand-300" : ""
