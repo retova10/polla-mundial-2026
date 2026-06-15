@@ -140,9 +140,24 @@ describe("categorize() — reglas de scoring", () => {
       const m = makeMatch({ home_score: 3, away_score: 3 });
       expect(categorize(makePred(0, 3), m)).toBe("score_only");
     });
+
+    it("predijo ganador contrario 1-2, real 1-0 → acertó home_score (CIV vs ECU)", () => {
+      const m = makeMatch({ home_score: 1, away_score: 0 });
+      expect(categorize(makePred(1, 2), m)).toBe("score_only");
+    });
+
+    it("predijo ganador contrario 2-1, real 0-1 → acertó away_score (HAI vs SCO)", () => {
+      const m = makeMatch({ home_score: 0, away_score: 1 });
+      expect(categorize(makePred(2, 1), m)).toBe("score_only");
+    });
+
+    it("predijo ganador contrario 2-3, real 2-1 → acertó home_score", () => {
+      const m = makeMatch({ home_score: 2, away_score: 1 });
+      expect(categorize(makePred(2, 3), m)).toBe("score_only");
+    });
   });
 
-  describe("0 pts — ganador contrario o nada acertado", () => {
+  describe("0 pts — ganador contrario sin acertar ningún marcador", () => {
     it("predijo 1-2, real 2-1 → ganador contrario, ningún score", () => {
       const m = makeMatch({ home_score: 2, away_score: 1 });
       expect(categorize(makePred(1, 2), m)).toBe("wrong");
@@ -156,12 +171,6 @@ describe("categorize() — reglas de scoring", () => {
     it("predijo 3-0 (ganador local), real 0-3 → ganador contrario", () => {
       const m = makeMatch({ home_score: 0, away_score: 3 });
       expect(categorize(makePred(3, 0), m)).toBe("wrong");
-    });
-
-    it("predijo ganador contrario CON un score acertado → sigue siendo 0 pts", () => {
-      // home real gana 2-1, predicción 2-3 (visitante gana, pero acierta home=2)
-      const m = makeMatch({ home_score: 2, away_score: 1 });
-      expect(categorize(makePred(2, 3), m)).toBe("wrong");
     });
 
     it("predijo empate 0-0, real 2-1 → ningún marcador acertado", () => {

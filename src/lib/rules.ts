@@ -39,16 +39,16 @@ export const CATEGORY_META: Record<ScoringCategory, CategoryMeta> = {
     ring: "ring-blue-200",
   },
   score_only: {
-    label: "Un marcador, sin ganador",
+    label: "Un marcador acertado",
     description:
-      "Te equivocaste en el resultado (empate por ganador o viceversa), pero acertaste los goles de uno de los equipos.",
+      "Te equivocaste en quién gana (empate por ganador, o el ganador contrario al real), pero acertaste los goles de uno de los dos equipos.",
     badge: "bg-amber-50 text-amber-700",
     ring: "ring-amber-200",
   },
   wrong: {
     label: "Sin aciertos",
     description:
-      "No acertaste el resultado ni los goles. Incluye predecir al ganador contrario al real.",
+      "No acertaste ni el ganador ni los goles de ninguno de los dos equipos.",
     badge: "bg-slate-100 text-slate-600",
     ring: "ring-slate-200",
   },
@@ -85,6 +85,7 @@ export const EXAMPLES: Record<ScoringCategory, Example[]> = {
   score_only: [
     { pred: [1, 1], real: [1, 0], note: "Predijiste empate, hubo ganador" },
     { pred: [2, 0], real: [2, 2], note: "Predijiste ganador, hubo empate" },
+    { pred: [1, 2], real: [1, 0], note: "Ganador contrario, pero acertaste los goles del local" },
   ],
   wrong: [
     { pred: [2, 1], real: [0, 3], note: "Ganador contrario al real" },

@@ -9,8 +9,10 @@
 //     uno de los marcadores
 //   - Predijiste ganador, hubo empate, pero acertaste     → 1 pt
 //     uno de los marcadores
-//   - Cualquier otro caso (incluido predecir al ganador
-//     contrario al real)                                   → 0 pts
+//   - Predijiste al ganador contrario al real, pero        → 1 pt
+//     acertaste uno de los dos marcadores
+//   - Cualquier otro caso (sin acertar ningún marcador
+//     ni el ganador)                                       → 0 pts
 
 import type { Match, Prediction } from "../types/database";
 
@@ -26,7 +28,7 @@ export type ScoreCategory =
   | "exact"           // 4 pts — marcador exacto
   | "winner_score"    // 3 pts — ganador + uno de los marcadores
   | "winner_or_draw"  // 2 pts — solo ganador, o empate correcto
-  | "score_only"      // 1 pt  — un marcador acertado sin ganador
+  | "score_only"      // 1 pt  — un marcador acertado sin acertar el ganador
   | "wrong"           // 0 pts
   | "pending";        // partido no finalizado
 
@@ -54,8 +56,11 @@ export function categorize(
   const ro = Math.sign(mh - ma);
   const oneScoreMatches = ph === mh || pa === ma;
 
-  // 2. Predijo al equipo contrario como ganador → 0 pts siempre
-  if (po !== 0 && ro !== 0 && po !== ro) return "wrong";
+  // 2. Predijo al equipo contrario como ganador.
+  //    Aun así, si acertó uno de los dos marcadores, suma 1 pt.
+  if (po !== 0 && ro !== 0 && po !== ro) {
+    return oneScoreMatches ? "score_only" : "wrong";
+  }
 
   // 3. Mismo ganador (no exacto)
   if (po === ro && ro !== 0) {
