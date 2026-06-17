@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase, fetchAllRows } from "../lib/supabase";
 import type {
   Entry,
   Match,
@@ -144,12 +144,11 @@ export default function AdminMatrix() {
           .from("matches")
           .select("*")
           .order("match_number", { ascending: true }),
-        supabase
-          .from("entries")
-          .select("*")
-          .order("created_at", { ascending: true }),
-        supabase.from("profiles").select("*"),
-        supabase.from("predictions").select("*"),
+        // entries y profiles crecen con #pollas / #usuarios; predictions crece
+        // con pollas × partidos y es la que supera el límite de 1000 filas.
+        fetchAllRows<Entry>("entries", { orderBy: "created_at" }),
+        fetchAllRows<Profile>("profiles"),
+        fetchAllRows<Prediction>("predictions"),
       ]);
       if (!active) return;
       const err = mRes.error || eRes.error || pRes.error || prRes.error;

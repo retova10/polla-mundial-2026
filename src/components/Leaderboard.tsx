@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase, fetchAllRows } from "../lib/supabase";
 import type { Entry, Match, Prediction, Profile } from "../types/database";
 import { computeEntryScore, SCORING } from "../lib/scoring";
 import { isDemoMode } from "../lib/demo";
@@ -29,9 +29,9 @@ export default function Leaderboard({ matches }: Props) {
     async function load() {
       setLoading(true);
       const [eRes, pRes, predRes] = await Promise.all([
-        supabase.from("entries").select("*"),
-        supabase.from("profiles").select("*"),
-        supabase.from("predictions").select("*"),
+        fetchAllRows<Entry>("entries"),
+        fetchAllRows<Profile>("profiles"),
+        fetchAllRows<Prediction>("predictions"),
       ]);
       if (!mounted) return;
       if (eRes.error || pRes.error || predRes.error) {

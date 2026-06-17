@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase, fetchAllRows } from "../lib/supabase";
 import type { Entry, Profile } from "../types/database";
 import { toast, confirmDialog, promptDialog } from "../lib/notifications";
 
@@ -148,12 +148,16 @@ export default function AdminPollas() {
     setError(null);
 
     const [eRes, pRes, predRes] = await Promise.all([
-      supabase
-        .from("entries")
-        .select("*")
-        .order("created_at", { ascending: false }),
-      supabase.from("profiles").select("*"),
-      supabase.from("predictions").select("entry_id"),
+      fetchAllRows<Entry>("entries", {
+        orderBy: "created_at",
+        ascending: false,
+      }),
+      fetchAllRows<Profile>("profiles"),
+      // Solo entry_id: contamos pronósticos por polla. Sin paginar, el conteo
+      // se quedaría corto en cuanto el total de pronósticos pase de 1000.
+      fetchAllRows<{ entry_id: string }>("predictions", {
+        columns: "entry_id",
+      }),
     ]);
 
     if (eRes.error || pRes.error) {
