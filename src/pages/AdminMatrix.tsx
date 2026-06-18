@@ -130,6 +130,13 @@ export default function AdminMatrix() {
   const headerRowRef = useRef<HTMLTableRowElement>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
 
+  // Scroll horizontal inicial: al cargar, llevar la matriz hasta el último
+  // partido ya jugado. En móvil evita tener que arrastrar hasta el final
+  // para ver el partido más reciente.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const lastPlayedColRef = useRef<HTMLTableCellElement>(null);
+  const didInitialScrollRef = useRef(false);
+
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(id);
@@ -262,6 +269,42 @@ export default function AdminMatrix() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [loading, error, visiblePollas.length, visibleMatches.length]);
+
+  // Índice (en visibleMatches) del último partido que ya empezó/terminó.
+  const lastPlayedIndex = useMemo(() => {
+    let idx = -1;
+    for (let i = 0; i < visibleMatches.length; i++) {
+      const m = visibleMatches[i];
+      const started =
+        m.status === "finished" ||
+        m.status === "live" ||
+        new Date(m.kickoff_at).getTime() <= now.getTime();
+      if (started) idx = i;
+    }
+    return idx;
+  }, [visibleMatches, now]);
+
+  // Una sola vez por carga: desplaza el scroll horizontal para que el último
+  // partido jugado quede a la vista (alineado al borde derecho). useLayoutEffect
+  // posiciona antes de pintar, así no se ve el salto desde el primer partido.
+  useLayoutEffect(() => {
+    if (didInitialScrollRef.current || loading) return;
+    const container = scrollRef.current;
+    if (!container) return;
+    // Aún no hay partidos jugados: dejar la vista al inicio.
+    if (lastPlayedIndex < 0) {
+      didInitialScrollRef.current = true;
+      return;
+    }
+    const cell = lastPlayedColRef.current;
+    if (!cell) return;
+    const delta =
+      cell.getBoundingClientRect().right -
+      container.getBoundingClientRect().right;
+    // Solo si el partido queda fuera de vista hacia la derecha.
+    if (delta > 0) container.scrollLeft += delta + 8;
+    didInitialScrollRef.current = true;
+  }, [loading, lastPlayedIndex, visiblePollas.length]);
 
   // Movimiento de posiciones causado por el ÚLTIMO marcador: comparamos el
   // ranking actual contra el ranking SIN el último partido finalizado. Como el
@@ -478,7 +521,7 @@ export default function AdminMatrix() {
         </div>
       ) : (
         <div className="card p-0 overflow-hidden">
-          <div className="overflow-auto max-h-[calc(100vh-260px)]">
+          <div ref={scrollRef} className="overflow-auto max-h-[calc(100vh-260px)]">
             <table className="border-collapse text-xs">
               <thead>
                 <tr ref={headerRowRef}>
@@ -501,6 +544,7 @@ export default function AdminMatrix() {
                     return (
                       <th
                         key={m.id}
+                        ref={i === lastPlayedIndex ? lastPlayedColRef : undefined}
                         className={`sticky top-0 z-20 bg-slate-50 border-b border-slate-200 px-1.5 py-2 text-center font-normal min-w-[78px] ${
                           breakLeft ? "border-l-2 border-l-brand-300" : ""
                         }`}
