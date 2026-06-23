@@ -6,6 +6,7 @@ import {
   formatColombiaTime,
 } from "../lib/time";
 import { isMatchLive } from "../lib/standings";
+import { phaseLabel } from "../lib/phases";
 
 interface Props {
   match: Match;
@@ -87,13 +88,6 @@ export default function LiveMatchCard({ match, variant, onCycleStatus }: Props) 
     }
   }
 
-  const phaseLabel =
-    match.phase === "group"
-      ? `Grupo ${match.group_letter}`
-      : match.phase === "round_of_32"
-      ? "Octavos"
-      : match.phase;
-
   return (
     <div
       className={`card hover:shadow-lift transition-all overflow-hidden ${
@@ -123,7 +117,7 @@ export default function LiveMatchCard({ match, variant, onCycleStatus }: Props) 
           {finished && <span>FINALIZADO</span>}
           {!live && !finished && <span>POR JUGAR</span>}
           <span className={live ? "text-white/80" : "text-slate-400"}>·</span>
-          <span>{phaseLabel}</span>
+          <span>{phaseLabel(match)}</span>
         </div>
         <span className={live ? "text-white/80" : "text-slate-400"}>
           #{match.match_number}

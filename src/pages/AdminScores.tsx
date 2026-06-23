@@ -5,6 +5,7 @@ import { getFlagUrl, isSquareFlag } from "../data/countries";
 import { formatColombiaShort, isLocked } from "../lib/time";
 import { isMatchLive } from "../lib/standings";
 import { toast } from "../lib/notifications";
+import { phaseLabel } from "../lib/phases";
 
 type Filter = "all" | "today" | "live" | "scheduled" | "finished";
 
@@ -222,11 +223,7 @@ function ScoreRow({
       <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap text-xs">
           <span className="badge-slate">#{match.match_number}</span>
-          <span className="badge-brand">
-            {match.phase === "group"
-              ? `Grupo ${match.group_letter}`
-              : "Octavos"}
-          </span>
+          <span className="badge-brand">{phaseLabel(match)}</span>
           {live && (
             <span className="badge-rose flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>

@@ -8,6 +8,7 @@ import MatchCard from "../components/MatchCard";
 import MatchListRow from "../components/MatchListRow";
 import { formatColombiaShort, isLocked } from "../lib/time";
 import { isDemoMode } from "../lib/demo";
+import { KNOCKOUT_PHASES, phaseLabelShort } from "../lib/phases";
 
 type Filter = "all" | "upcoming" | "locked" | "pending";
 type ViewMode = "cards" | "list";
@@ -354,7 +355,11 @@ export default function Dashboard() {
             >
               <option value="all">Todas las fases</option>
               <option value="group">Fase de grupos</option>
-              <option value="round_of_32">Octavos (R32)</option>
+              {KNOCKOUT_PHASES.map((p) => (
+                <option key={p} value={p}>
+                  {phaseLabelShort(p)}
+                </option>
+              ))}
             </select>
             <select
               value={groupLetter}

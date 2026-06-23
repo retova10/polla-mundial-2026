@@ -10,6 +10,7 @@ import {
   msUntilLock,
 } from "../lib/time";
 import { getCountry, getFlagUrl, isSquareFlag } from "../data/countries";
+import { phaseLabel } from "../lib/phases";
 
 interface Props {
   match: Match;
@@ -137,13 +138,6 @@ export default function MatchCard({ match, entryId, entryPaid, prediction, onSav
     setTimeout(() => setMsg(null), 2500);
   }
 
-  const phaseLabel =
-    match.phase === "group"
-      ? `Grupo ${match.group_letter}`
-      : match.phase === "round_of_32"
-      ? "Octavos"
-      : match.phase;
-
   const inputsDisabled = locked || placeholderMatch || !entryPaid;
 
   return (
@@ -152,7 +146,7 @@ export default function MatchCard({ match, entryId, entryPaid, prediction, onSav
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="badge-slate">#{match.match_number}</span>
-          <span className="badge-brand">{phaseLabel}</span>
+          <span className="badge-brand">{phaseLabel(match)}</span>
         </div>
         {!entryPaid ? (
           <span className="badge-rose">🔒 Sin pagar</span>

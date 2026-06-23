@@ -12,6 +12,7 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { getFlagUrl, isSquareFlag } from "../data/countries";
+import { phaseLabel } from "../lib/phases";
 
 interface Props {
   match: Match;
@@ -148,13 +149,6 @@ export default function MatchListRow({
     }
   }
 
-  const phaseLabel =
-    match.phase === "group"
-      ? `Grupo ${match.group_letter}`
-      : match.phase === "round_of_32"
-      ? "R32"
-      : match.phase;
-
   const inputsDisabled = locked || placeholderMatch || !entryPaid;
 
   const dayLabel = format(toColombia(match.kickoff_at), "EEE d MMM", {
@@ -170,7 +164,7 @@ export default function MatchListRow({
             #{match.match_number}
           </span>
           <span className="text-[10px] font-bold uppercase tracking-wide text-brand-600">
-            {phaseLabel}
+            {phaseLabel(match)}
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-xs">

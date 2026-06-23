@@ -18,6 +18,7 @@ import {
   type ScoreCategory,
 } from "../lib/scoring";
 import { useAuth } from "../lib/AuthContext";
+import { phaseLabelMini, KNOCKOUT_PHASES, phaseLabelShort } from "../lib/phases";
 
 function shortName(name: string): string {
   return name
@@ -431,7 +432,11 @@ export default function AdminMatrix() {
           >
             <option value="all">Todas las fases</option>
             <option value="group">Fase de grupos</option>
-            <option value="round_of_32">Octavos (R32)</option>
+            {KNOCKOUT_PHASES.map((p) => (
+              <option key={p} value={p}>
+                {phaseLabelShort(p)}
+              </option>
+            ))}
           </select>
           <select
             value={groupLetter}
@@ -555,11 +560,7 @@ export default function AdminMatrix() {
                               #{m.match_number}
                             </span>
                             <span className="text-[9px] font-bold uppercase tracking-wide text-brand-600">
-                              {m.phase === "group"
-                                ? `Grp ${m.group_letter}`
-                                : m.phase === "round_of_32"
-                                ? "R32"
-                                : m.phase}
+                              {phaseLabelMini(m)}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">

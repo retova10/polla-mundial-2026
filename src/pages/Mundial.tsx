@@ -4,12 +4,13 @@ import type { Match, MatchStatus } from "../types/database";
 import StandingsTable from "../components/StandingsTable";
 import LiveMatchCard from "../components/LiveMatchCard";
 import Leaderboard from "../components/Leaderboard";
+import KnockoutBracket from "../components/KnockoutBracket";
 import { isMatchLive } from "../lib/standings";
 import { isDemoMode } from "../lib/demo";
 import { useAuth } from "../lib/AuthContext";
 import { toast } from "../lib/notifications";
 
-type Tab = "leaderboard" | "standings" | "live" | "results";
+type Tab = "leaderboard" | "standings" | "bracket" | "live" | "results";
 
 export default function Mundial() {
   const { profile } = useAuth();
@@ -157,6 +158,9 @@ export default function Mundial() {
         <TabBtn active={tab === "standings"} onClick={() => setTab("standings")}>
           📊 Tabla por grupos
         </TabBtn>
+        <TabBtn active={tab === "bracket"} onClick={() => setTab("bracket")}>
+          🏆 Fase final
+        </TabBtn>
         <TabBtn active={tab === "live"} onClick={() => setTab("live")}>
           {liveMatches.length > 0 ? (
             <span className="flex items-center gap-1.5">
@@ -185,6 +189,8 @@ export default function Mundial() {
         <Leaderboard matches={matches} />
       ) : tab === "standings" ? (
         <StandingsTab matches={matches} groupLetters={groupLetters} />
+      ) : tab === "bracket" ? (
+        <KnockoutBracket matches={matches} />
       ) : tab === "live" ? (
         <LiveTab
           live={liveMatches}
