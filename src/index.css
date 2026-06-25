@@ -98,7 +98,8 @@
   --kc-line: #cbd5e1;
   display: flex;
   align-items: stretch;
-  min-height: 38rem;
+  /* Alto suficiente para que las 8 cajas de dieciseisavos respiren. */
+  min-height: 50rem;
   width: max-content;
 }
 .kc-card {
@@ -107,6 +108,12 @@
 .kc-leaf {
   display: flex;
   align-items: center;
+  width: 100%;
+}
+/* Separación mínima garantizada entre cajas vecinas (sobre todo en los
+   dieciseisavos, que son los más apretados). */
+.kc-leaf .kc-card {
+  margin: 6px 0;
 }
 .kc-node {
   display: flex;
