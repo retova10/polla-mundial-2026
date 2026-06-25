@@ -79,19 +79,20 @@ describe("isThirdPlaceToken", () => {
 });
 
 describe("computeBracketUpdates — posiciones de grupo", () => {
+  // #79 es el partido "1A vs 3C/3E/3F/3H/3I" en el cuadro oficial.
   it("NO resuelve si el grupo aún no termina", () => {
     const partial = groupAComplete().map((m, i) =>
       i === 0 ? { ...m, home_score: null, away_score: null, status: "scheduled" as MatchStatus } : m
     );
-    const r73 = km(73, "round_of_32", "1A", "3C/3D/3E/3F");
-    const updates = computeBracketUpdates([...partial, r73]);
-    expect(updates.find((u) => u.match_number === 73)).toBeUndefined();
+    const r79 = km(79, "round_of_32", "1A", "3C/3E/3F/3H/3I");
+    const updates = computeBracketUpdates([...partial, r79]);
+    expect(updates.find((u) => u.match_number === 79)).toBeUndefined();
   });
 
   it("resuelve 1A→Brasil cuando el grupo A termina (y deja el tercero intacto)", () => {
-    const r73 = km(73, "round_of_32", "1A", "3C/3D/3E/3F");
-    const updates = computeBracketUpdates([...groupAComplete(), r73]);
-    const u = updates.find((x) => x.match_number === 73);
+    const r79 = km(79, "round_of_32", "1A", "3C/3E/3F/3H/3I");
+    const updates = computeBracketUpdates([...groupAComplete(), r79]);
+    const u = updates.find((x) => x.match_number === 79);
     expect(u).toBeDefined();
     expect(u!.home_team).toBe("Brasil");
     expect(u!.home_is_placeholder).toBe(false);
@@ -163,36 +164,36 @@ describe("computeBracketUpdates — ganadores/perdedores de llave", () => {
 
 describe("computeBracketUpdates — idempotencia y correcciones", () => {
   it("no genera updates si ya está todo resuelto", () => {
-    const r73 = km(73, "round_of_32", "Brasil", "3C/3D/3E/3F", {
+    const r79 = km(79, "round_of_32", "Brasil", "3C/3E/3F/3H/3I", {
       home_is_placeholder: false,
     });
-    const updates = computeBracketUpdates([...groupAComplete(), r73]);
+    const updates = computeBracketUpdates([...groupAComplete(), r79]);
     // home ya es Brasil y no-placeholder → sin cambios; tercero intacto.
-    expect(updates.find((x) => x.match_number === 73)).toBeUndefined();
+    expect(updates.find((x) => x.match_number === 79)).toBeUndefined();
   });
 
   it("NO revierte un equipo ya resuelto/manual si el feeder deja de estar disponible", () => {
-    // #73 quedó con Brasil resuelto, pero ahora el grupo A no está completo.
+    // #79 quedó con Brasil resuelto, pero ahora el grupo A no está completo.
     const partial = groupAComplete().map((m) =>
       m.match_number === 54
         ? { ...m, home_score: null, away_score: null, status: "scheduled" as MatchStatus }
         : m
     );
-    const r73 = km(73, "round_of_32", "Brasil", "3C/3D/3E/3F", {
+    const r79 = km(79, "round_of_32", "Brasil", "3C/3E/3F/3H/3I", {
       home_is_placeholder: false,
     });
-    const updates = computeBracketUpdates([...partial, r73]);
+    const updates = computeBracketUpdates([...partial, r79]);
     // No hay dato afirmativo (grupo incompleto) → no se toca, mantiene Brasil.
-    expect(updates.find((x) => x.match_number === 73)).toBeUndefined();
+    expect(updates.find((x) => x.match_number === 79)).toBeUndefined();
   });
 
   it("auto-corrige si el grupo terminó y cambió el clasificado", () => {
-    // #73 tenía a Francia en 1A, pero el grupo da Brasil como 1º.
-    const r73 = km(73, "round_of_32", "Francia", "3C/3D/3E/3F", {
+    // #79 tenía a Francia en 1A, pero el grupo da Brasil como 1º.
+    const r79 = km(79, "round_of_32", "Francia", "3C/3E/3F/3H/3I", {
       home_is_placeholder: false,
     });
-    const updates = computeBracketUpdates([...groupAComplete(), r73]);
-    const u = updates.find((x) => x.match_number === 73);
+    const updates = computeBracketUpdates([...groupAComplete(), r79]);
+    const u = updates.find((x) => x.match_number === 79);
     expect(u).toBeDefined();
     expect(u!.home_team).toBe("Brasil"); // corrige 1A → Brasil
     expect(u!.home_is_placeholder).toBe(false);

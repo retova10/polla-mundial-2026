@@ -152,23 +152,27 @@ const matches = SCHEDULE.map(([n, g, home, away, date, time, vk]) => ({
 }));
 
 // --- ROUND OF 32 (placeholders) ---
+// Cruces oficiales FIFA 2026 (orden por número de partido 73→88). Las
+// fechas/sedes que este script asigna abajo son APROXIMADAS; los valores
+// reales viven en supabase/02_seed_matches.sql (y la corrección 13). Los
+// partidos 89–104 (octavos→final) están en supabase/12_seed_knockout_bracket.
 const r32Matchups = [
-  ["1A", "3C/3D/3E/3F"],
-  ["1C", "3A/3B/3F/3H"],
-  ["2F", "2I"],
-  ["1H", "2K"],
-  ["1E", "3A/3B/3C/3D"],
-  ["1L", "2J"],
-  ["2D", "2E"],
-  ["1B", "3E/3F/3G/3H"],
-  ["1I", "3B/3D/3E/3F"],
-  ["2A", "2C"],
-  ["2B", "2H"],
-  ["1J", "3A/3D/3E/3G"],
-  ["1G", "3C/3E/3H/3I"],
-  ["2L", "2G"],
-  ["1F", "3A/3B/3D/3I"],
-  ["1K", "3B/3E/3H/3J"],
+  ["2A", "2B"],
+  ["1E", "3A/3B/3C/3D/3F"],
+  ["1F", "2C"],
+  ["1C", "2F"],
+  ["1I", "3C/3D/3F/3G/3H"],
+  ["2E", "2I"],
+  ["1A", "3C/3E/3F/3H/3I"],
+  ["1L", "3E/3H/3I/3J/3K"],
+  ["1D", "3B/3E/3F/3I/3J"],
+  ["1G", "3A/3E/3H/3I/3J"],
+  ["2K", "2L"],
+  ["1H", "2J"],
+  ["1B", "3E/3F/3G/3I/3J"],
+  ["1J", "2H"],
+  ["1K", "3D/3E/3I/3J/3L"],
+  ["2D", "2G"],
 ];
 const r32Days = [
   "2026-06-28", "2026-06-29", "2026-06-30",
