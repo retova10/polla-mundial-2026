@@ -87,3 +87,153 @@
     @apply pill bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50;
   }
 }
+
+/* ===== Cuadro de eliminación (bracket espejo) ===== */
+/* Conectores tipo llave dibujados con pseudo-elementos. Cada cruce (.kc-node)
+   tiene su tarjeta y, a un lado, sus dos feeders (.kc-child con flex:1, así sus
+   centros quedan al 25% y 75% del grupo). Las medias-llaves de cada hijo se
+   encuentran en el punto medio y de ahí sale un tramo a la tarjeta padre. */
+.kc-bracket {
+  --kc-gap: 14px;
+  --kc-line: #cbd5e1;
+  display: flex;
+  align-items: stretch;
+  min-height: 38rem;
+  width: max-content;
+}
+.kc-card {
+  width: 150px;
+}
+.kc-leaf {
+  display: flex;
+  align-items: center;
+}
+.kc-node {
+  display: flex;
+  align-items: center;
+}
+.kc-node--right {
+  flex-direction: row-reverse;
+}
+.kc-children {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
+.kc-child {
+  position: relative;
+  flex: 1 0 0;
+  display: flex;
+  align-items: center;
+}
+
+/* ---- Lado izquierdo: feeders a la izquierda, llave hacia la derecha ---- */
+.kc-node:not(.kc-node--right) > .kc-children > .kc-child {
+  justify-content: flex-end;
+}
+/* tramo horizontal saliente de cada tarjeta hija */
+.kc-node:not(.kc-node--right) > .kc-children > .kc-child::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: var(--kc-gap);
+  height: 2px;
+  background: var(--kc-line);
+  transform: translateX(100%);
+}
+/* media-llave vertical: el de arriba baja, el de abajo sube → se juntan al medio */
+.kc-node:not(.kc-node--right) > .kc-children > .kc-child:first-child::after {
+  content: "";
+  position: absolute;
+  right: calc(-1 * var(--kc-gap));
+  top: 50%;
+  height: 50%;
+  width: 2px;
+  background: var(--kc-line);
+}
+.kc-node:not(.kc-node--right) > .kc-children > .kc-child:last-child::after {
+  content: "";
+  position: absolute;
+  right: calc(-1 * var(--kc-gap));
+  bottom: 50%;
+  height: 50%;
+  width: 2px;
+  background: var(--kc-line);
+}
+.kc-node:not(.kc-node--right) > .kc-card-wrap {
+  position: relative;
+  margin-left: calc(2 * var(--kc-gap));
+}
+/* tramo desde el punto medio de la llave a la tarjeta padre */
+.kc-node:not(.kc-node--right) > .kc-card-wrap::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: var(--kc-gap);
+  height: 2px;
+  background: var(--kc-line);
+  transform: translateX(-100%);
+}
+
+/* ---- Lado derecho: espejo (llave hacia la izquierda) ---- */
+.kc-node--right > .kc-children > .kc-child {
+  justify-content: flex-start;
+}
+.kc-node--right > .kc-children > .kc-child::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: var(--kc-gap);
+  height: 2px;
+  background: var(--kc-line);
+  transform: translateX(-100%);
+}
+.kc-node--right > .kc-children > .kc-child:first-child::after {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--kc-gap));
+  top: 50%;
+  height: 50%;
+  width: 2px;
+  background: var(--kc-line);
+}
+.kc-node--right > .kc-children > .kc-child:last-child::after {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--kc-gap));
+  bottom: 50%;
+  height: 50%;
+  width: 2px;
+  background: var(--kc-line);
+}
+.kc-node--right > .kc-card-wrap {
+  position: relative;
+  margin-right: calc(2 * var(--kc-gap));
+}
+.kc-node--right > .kc-card-wrap::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: var(--kc-gap);
+  height: 2px;
+  background: var(--kc-line);
+  transform: translateX(100%);
+}
+
+/* ---- Centro: Final + tercer puesto ---- */
+.kc-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  padding: 0 1.25rem;
+  flex-shrink: 0;
+}
+.kc-center .kc-card {
+  width: 168px;
+}
