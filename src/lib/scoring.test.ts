@@ -23,6 +23,8 @@ function makeMatch(overrides: Partial<Match> = {}): Match {
     country: "COL",
     home_score: 2,
     away_score: 1,
+    home_penalties: null,
+    away_penalties: null,
     status: "finished" as MatchStatus,
     ...overrides,
   };

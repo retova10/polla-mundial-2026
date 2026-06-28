@@ -26,6 +26,8 @@ function gm(
     country: null,
     home_score: hs,
     away_score: as_,
+    home_penalties: null,
+    away_penalties: null,
     status: (hs !== null ? "finished" : "scheduled") as MatchStatus,
   };
 }
@@ -52,6 +54,8 @@ function km(
     country: null,
     home_score: null,
     away_score: null,
+    home_penalties: null,
+    away_penalties: null,
     status: "scheduled" as MatchStatus,
     ...opts,
   };
@@ -131,12 +135,46 @@ describe("computeBracketUpdates — ganadores/perdedores de llave", () => {
     expect(u90!.away_is_placeholder).toBe(false);
   });
 
-  it("NO resuelve el ganador si la llave terminó en empate (penales = manual)", () => {
+  it("NO resuelve el ganador si hubo empate y aún no se cargan penales", () => {
     const r73 = km(73, "round_of_32", "Brasil", "Marruecos", {
       home_is_placeholder: false,
       away_is_placeholder: false,
       home_score: 1,
       away_score: 1,
+      status: "finished",
+    });
+    const r90 = km(90, "round_of_16", "Ganador 73", "Ganador 75");
+    const updates = computeBracketUpdates([r73, r90]);
+    expect(updates.find((x) => x.match_number === 90)).toBeUndefined();
+  });
+
+  it("resuelve por PENALES cuando el reglamentario terminó empatado", () => {
+    // Empate 1-1, Marruecos gana 5-4 en penales → avanza Marruecos.
+    const r73 = km(73, "round_of_32", "Brasil", "Marruecos", {
+      home_is_placeholder: false,
+      away_is_placeholder: false,
+      home_score: 1,
+      away_score: 1,
+      home_penalties: 4,
+      away_penalties: 5,
+      status: "finished",
+    });
+    const r90 = km(90, "round_of_16", "Ganador 73", "Ganador 75");
+    const updates = computeBracketUpdates([r73, r90]);
+    const u90 = updates.find((x) => x.match_number === 90);
+    expect(u90).toBeDefined();
+    expect(u90!.home_team).toBe("Marruecos"); // ganó los penales
+    expect(u90!.home_is_placeholder).toBe(false);
+  });
+
+  it("NO resuelve si los penales también quedan empatados", () => {
+    const r73 = km(73, "round_of_32", "Brasil", "Marruecos", {
+      home_is_placeholder: false,
+      away_is_placeholder: false,
+      home_score: 1,
+      away_score: 1,
+      home_penalties: 3,
+      away_penalties: 3,
       status: "finished",
     });
     const r90 = km(90, "round_of_16", "Ganador 73", "Ganador 75");

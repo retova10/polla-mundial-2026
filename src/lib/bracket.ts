@@ -87,8 +87,9 @@ interface MutableMatch {
   away: MutableTeam;
 }
 
-/** Ganador real de un partido ya jugado, o null si no es decidible
- *  (no finalizado, equipos sin definir, o empate → penales = manual). */
+/** Ganador (o perdedor) real de un partido ya jugado, o null si aún no es
+ *  decidible: no finalizado, equipos sin definir, o empate sin penales
+ *  cargados. Si hubo empate, se decide por el marcador de penales. */
 function decisiveWinner(
   mm: MutableMatch | undefined,
   want: "winner" | "loser"
@@ -98,10 +99,18 @@ function decisiveWinner(
   if (m.status !== "finished") return null;
   if (m.home_score === null || m.away_score === null) return null;
   if (mm.home.placeholder || mm.away.placeholder) return null;
-  if (m.home_score === m.away_score) return null; // penales: manual
-  const homeWon = m.home_score > m.away_score;
-  const winnerSide = homeWon ? mm.home : mm.away;
-  const loserSide = homeWon ? mm.away : mm.home;
+
+  let homeAdvances: boolean;
+  if (m.home_score !== m.away_score) {
+    homeAdvances = m.home_score > m.away_score;
+  } else {
+    // Empate en el reglamentario → lo define el marcador de penales.
+    if (m.home_penalties == null || m.away_penalties == null) return null;
+    if (m.home_penalties === m.away_penalties) return null; // sin definir
+    homeAdvances = m.home_penalties > m.away_penalties;
+  }
+  const winnerSide = homeAdvances ? mm.home : mm.away;
+  const loserSide = homeAdvances ? mm.away : mm.home;
   return (want === "winner" ? winnerSide : loserSide).team;
 }
 

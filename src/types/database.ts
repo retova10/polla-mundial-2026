@@ -37,6 +37,10 @@ export interface Match {
   country: string | null;
   home_score: number | null;
   away_score: number | null;
+  // Penales: solo en eliminatorias que terminaron empatadas. No afectan
+  // el puntaje (el pronóstico se evalúa con el marcador reglamentario).
+  home_penalties: number | null;
+  away_penalties: number | null;
   status: MatchStatus;
 }
 

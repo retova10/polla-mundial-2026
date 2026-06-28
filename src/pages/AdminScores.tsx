@@ -106,12 +106,12 @@ export default function AdminScores() {
     id: string,
     home_score: number | null,
     away_score: number | null,
-    status: MatchStatus
+    status: MatchStatus,
+    home_penalties: number | null = null,
+    away_penalties: number | null = null
   ) {
-    const { error } = await supabase
-      .from("matches")
-      .update({ home_score, away_score, status })
-      .eq("id", id);
+    const fields = { home_score, away_score, status, home_penalties, away_penalties };
+    const { error } = await supabase.from("matches").update(fields).eq("id", id);
     if (error) {
       toast.error(`Error al guardar: ${error.message}`);
       return false;
@@ -119,9 +119,7 @@ export default function AdminScores() {
     toast.success("Marcador guardado");
     // Propaga clasificados con el marcador recién guardado (datos frescos en
     // memoria) antes de recargar, para que la fase final quede al día sola.
-    const fresh = matches.map((m) =>
-      m.id === id ? { ...m, home_score, away_score, status } : m
-    );
+    const fresh = matches.map((m) => (m.id === id ? { ...m, ...fields } : m));
     await syncBracket(fresh, true);
     await load();
     setEditingId(null);
@@ -275,7 +273,9 @@ function ScoreRow({
     id: string,
     home: number | null,
     away: number | null,
-    status: MatchStatus
+    status: MatchStatus,
+    homePen?: number | null,
+    awayPen?: number | null
   ) => Promise<boolean>;
   now: Date;
 }) {
@@ -285,11 +285,29 @@ function ScoreRow({
   const [away, setAway] = useState<string>(
     match.away_score?.toString() ?? ""
   );
+  const [homePen, setHomePen] = useState<string>(
+    match.home_penalties?.toString() ?? ""
+  );
+  const [awayPen, setAwayPen] = useState<string>(
+    match.away_penalties?.toString() ?? ""
+  );
   const [status, setStatus] = useState<MatchStatus>(match.status);
   const [saving, setSaving] = useState(false);
 
   const live = isMatchLive(match, now);
   const locked = isLocked(match.kickoff_at, now);
+
+  // Penales solo en eliminatorias empatadas (en grupos un empate es válido).
+  const hNum = parseInt(home, 10);
+  const aNum = parseInt(away, 10);
+  const isKnockout = match.phase !== "group";
+  const showPenalties =
+    isKnockout &&
+    home !== "" &&
+    away !== "" &&
+    !Number.isNaN(hNum) &&
+    !Number.isNaN(aNum) &&
+    hNum === aNum;
 
   async function handleSave() {
     const h = home === "" ? null : parseInt(home, 10);
@@ -301,8 +319,26 @@ function ScoreRow({
       toast.error("Marcadores inválidos");
       return;
     }
+    // Penales solo si aplica (eliminatoria empatada); si no, se limpian.
+    let hp: number | null = null;
+    let ap: number | null = null;
+    if (showPenalties) {
+      hp = homePen === "" ? null : parseInt(homePen, 10);
+      ap = awayPen === "" ? null : parseInt(awayPen, 10);
+      if (
+        (hp !== null && (Number.isNaN(hp) || hp < 0)) ||
+        (ap !== null && (Number.isNaN(ap) || ap < 0))
+      ) {
+        toast.error("Penales inválidos");
+        return;
+      }
+      if (hp !== null && ap !== null && hp === ap) {
+        toast.error("Los penales no pueden quedar empatados");
+        return;
+      }
+    }
     setSaving(true);
-    await onSave(match.id, h, a, status);
+    await onSave(match.id, h, a, status, hp, ap);
     setSaving(false);
   }
 
@@ -401,6 +437,40 @@ function ScoreRow({
           </span>
         </div>
       </div>
+
+      {showPenalties && (
+        <div className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-amber-50 border border-amber-200 py-2">
+          <span className="text-xs font-semibold text-amber-700">
+            🥅 Penales
+          </span>
+          <input
+            type="number"
+            min={0}
+            max={30}
+            inputMode="numeric"
+            value={homePen}
+            onChange={(e) => setHomePen(e.target.value)}
+            disabled={!editing}
+            className="w-12 text-center text-lg font-extrabold rounded-lg border border-amber-300 bg-white px-1 py-1 text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-200 disabled:bg-slate-50"
+            placeholder="-"
+          />
+          <span className="text-amber-400 font-bold">:</span>
+          <input
+            type="number"
+            min={0}
+            max={30}
+            inputMode="numeric"
+            value={awayPen}
+            onChange={(e) => setAwayPen(e.target.value)}
+            disabled={!editing}
+            className="w-12 text-center text-lg font-extrabold rounded-lg border border-amber-300 bg-white px-1 py-1 text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-200 disabled:bg-slate-50"
+            placeholder="-"
+          />
+          <span className="text-[11px] text-amber-600 ml-1">
+            avanza quien gane los penales
+          </span>
+        </div>
+      )}
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm">
@@ -501,6 +571,8 @@ function KnockoutEditRow({
   const [away, setAway] = useState(match.away_is_placeholder ? "" : match.away_team);
   const [hs, setHs] = useState(match.home_score?.toString() ?? "");
   const [as_, setAs] = useState(match.away_score?.toString() ?? "");
+  const [homePen, setHomePen] = useState(match.home_penalties?.toString() ?? "");
+  const [awayPen, setAwayPen] = useState(match.away_penalties?.toString() ?? "");
   const [status, setStatus] = useState<MatchStatus>(match.status);
   const [saving, setSaving] = useState(false);
 
@@ -509,10 +581,22 @@ function KnockoutEditRow({
     setAway(match.away_is_placeholder ? "" : match.away_team);
     setHs(match.home_score?.toString() ?? "");
     setAs(match.away_score?.toString() ?? "");
+    setHomePen(match.home_penalties?.toString() ?? "");
+    setAwayPen(match.away_penalties?.toString() ?? "");
     setStatus(match.status);
   }
 
   const teamsReady = home !== "" && away !== "";
+  const hNum = parseInt(hs, 10);
+  const aNum = parseInt(as_, 10);
+  // Toda la fase final es eliminatoria: penales si hay empate con equipos listos.
+  const showPenalties =
+    teamsReady &&
+    hs !== "" &&
+    as_ !== "" &&
+    !Number.isNaN(hNum) &&
+    !Number.isNaN(aNum) &&
+    hNum === aNum;
 
   async function handleSave() {
     const h = hs === "" ? null : parseInt(hs, 10);
@@ -520,6 +604,23 @@ function KnockoutEditRow({
     if ((h !== null && (Number.isNaN(h) || h < 0)) || (a !== null && (Number.isNaN(a) || a < 0))) {
       toast.error("Marcadores inválidos");
       return;
+    }
+    let hp: number | null = null;
+    let ap: number | null = null;
+    if (showPenalties) {
+      hp = homePen === "" ? null : parseInt(homePen, 10);
+      ap = awayPen === "" ? null : parseInt(awayPen, 10);
+      if (
+        (hp !== null && (Number.isNaN(hp) || hp < 0)) ||
+        (ap !== null && (Number.isNaN(ap) || ap < 0))
+      ) {
+        toast.error("Penales inválidos");
+        return;
+      }
+      if (hp !== null && ap !== null && hp === ap) {
+        toast.error("Los penales no pueden quedar empatados");
+        return;
+      }
     }
     setSaving(true);
     await onSave(match.id, {
@@ -529,6 +630,8 @@ function KnockoutEditRow({
       away_is_placeholder: away === "",
       home_score: teamsReady ? h : null,
       away_score: teamsReady ? a : null,
+      home_penalties: teamsReady ? hp : null,
+      away_penalties: teamsReady ? ap : null,
       status,
     });
     setSaving(false);
@@ -591,6 +694,36 @@ function KnockoutEditRow({
           )}
         </div>
       </div>
+
+      {showPenalties && (
+        <div className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-amber-50 border border-amber-200 py-2">
+          <span className="text-xs font-semibold text-amber-700">🥅 Penales</span>
+          <input
+            type="number"
+            min={0}
+            max={30}
+            inputMode="numeric"
+            value={homePen}
+            onChange={(e) => setHomePen(e.target.value)}
+            disabled={!editing}
+            className="w-12 text-center text-lg font-extrabold rounded-lg border border-amber-300 bg-white px-1 py-1 disabled:bg-slate-50"
+            placeholder="-"
+          />
+          <span className="text-amber-400 font-bold">:</span>
+          <input
+            type="number"
+            min={0}
+            max={30}
+            inputMode="numeric"
+            value={awayPen}
+            onChange={(e) => setAwayPen(e.target.value)}
+            disabled={!editing}
+            className="w-12 text-center text-lg font-extrabold rounded-lg border border-amber-300 bg-white px-1 py-1 disabled:bg-slate-50"
+            placeholder="-"
+          />
+          <span className="text-[11px] text-amber-600 ml-1">avanza quien gane</span>
+        </div>
+      )}
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm">

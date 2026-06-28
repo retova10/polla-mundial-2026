@@ -31,6 +31,8 @@ function makeMatch(
     country: null,
     home_score: homeScore,
     away_score: awayScore,
+    home_penalties: null,
+    away_penalties: null,
     status,
     ...overrides,
   };

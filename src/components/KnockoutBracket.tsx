@@ -50,12 +50,14 @@ function TeamLine({
   name,
   isPlaceholder,
   score,
+  penalties,
   isWinner,
   decided,
 }: {
   name: string;
   isPlaceholder: boolean;
   score: number | null;
+  penalties: number | null;
   isWinner: boolean;
   decided: boolean;
 }) {
@@ -91,6 +93,11 @@ function TeamLine({
       >
         {label}
       </span>
+      {penalties !== null && (
+        <span className="text-[9px] text-slate-400 tabular-nums flex-shrink-0">
+          ({penalties})
+        </span>
+      )}
       <span className="font-extrabold tabular-nums text-slate-900 text-xs w-3 text-center flex-shrink-0">
         {score ?? ""}
       </span>
@@ -103,8 +110,20 @@ function MatchCard({ match, highlight }: { match: Match; highlight?: "final" }) 
     match.status === "finished" &&
     match.home_score !== null &&
     match.away_score !== null;
-  const homeWins = decided && (match.home_score as number) > (match.away_score as number);
-  const awayWins = decided && (match.away_score as number) > (match.home_score as number);
+  // El que avanza: por marcador, o por penales si el reglamentario fue empate.
+  let homeWins = false;
+  let awayWins = false;
+  if (decided) {
+    const hs = match.home_score as number;
+    const as_ = match.away_score as number;
+    if (hs !== as_) {
+      homeWins = hs > as_;
+      awayWins = !homeWins;
+    } else if (match.home_penalties != null && match.away_penalties != null) {
+      homeWins = match.home_penalties > match.away_penalties;
+      awayWins = match.away_penalties > match.home_penalties;
+    }
+  }
 
   return (
     <div
@@ -127,6 +146,7 @@ function MatchCard({ match, highlight }: { match: Match; highlight?: "final" }) 
           name={match.home_team}
           isPlaceholder={match.home_is_placeholder}
           score={decided ? match.home_score : null}
+          penalties={decided ? match.home_penalties : null}
           isWinner={homeWins}
           decided={decided}
         />
@@ -134,6 +154,7 @@ function MatchCard({ match, highlight }: { match: Match; highlight?: "final" }) 
           name={match.away_team}
           isPlaceholder={match.away_is_placeholder}
           score={decided ? match.away_score : null}
+          penalties={decided ? match.away_penalties : null}
           isWinner={awayWins}
           decided={decided}
         />
