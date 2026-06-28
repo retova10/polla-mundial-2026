@@ -209,9 +209,9 @@ export default function Reglas() {
             <span>
               El puntaje se calcula con el{" "}
               <strong className="text-slate-800">
-                marcador del tiempo reglamentario
+                marcador del tiempo reglamentario y el tiempo extra en caso que lo hubiese
               </strong>
-              ; tiempos extra y penales no cuentan para el pronóstico.
+              ; penales no cuentan para el pronóstico.
             </span>
           </li>
           <li className="flex gap-2.5">
