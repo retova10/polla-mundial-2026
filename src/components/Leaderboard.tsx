@@ -20,18 +20,28 @@ interface Props {
 }
 
 export default function Leaderboard({ matches }: Props) {
-  const [rows, setRows] = useState<Row[]>([]);
+  // Datos crudos: se descargan UNA sola vez (o cuando cambian pronósticos/
+  // pollas). El ranking se recalcula localmente en el useMemo de abajo cada
+  // vez que cambian los marcadores (`matches`), SIN volver a descargar la
+  // tabla de pronósticos. Antes se re-bajaba todo en cada evento de realtime,
+  // lo que disparaba el egress de la base de datos.
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
     async function load() {
-      setLoading(true);
       const [eRes, pRes, predRes] = await Promise.all([
         fetchAllRows<Entry>("entries"),
         fetchAllRows<Profile>("profiles"),
-        fetchAllRows<Prediction>("predictions"),
+        // Solo las columnas que necesita el cálculo de puntaje: reduce el
+        // tamaño de la descarga (antes traía todas con select *).
+        fetchAllRows<Prediction>("predictions", {
+          columns: "entry_id, match_id, home_score, away_score",
+        }),
       ]);
       if (!mounted) return;
       if (eRes.error || pRes.error || predRes.error) {
@@ -44,64 +54,69 @@ export default function Leaderboard({ matches }: Props) {
         setLoading(false);
         return;
       }
-
-      const profilesById = new Map<string, Profile>();
-      (pRes.data ?? []).forEach((p) =>
-        profilesById.set((p as Profile).id, p as Profile)
-      );
-
-      const predsByEntry = new Map<string, Prediction[]>();
-      ((predRes.data ?? []) as Prediction[]).forEach((p) => {
-        const arr = predsByEntry.get(p.entry_id) ?? [];
-        arr.push(p);
-        predsByEntry.set(p.entry_id, arr);
-      });
-
-      const computed: Row[] = ((eRes.data ?? []) as Entry[]).map((entry) => {
-        const preds = predsByEntry.get(entry.id) ?? [];
-        const breakdown = computeEntryScore(preds, matches);
-        return {
-          entry,
-          profile: profilesById.get(entry.user_id) ?? null,
-          points: breakdown.points,
-          exact: breakdown.exact,
-          winner_score: breakdown.winner_score,
-          winner_or_draw: breakdown.winner_or_draw,
-          score_only: breakdown.score_only,
-          predictions_count: breakdown.predictions_count,
-        };
-      });
-
-      setRows(computed);
+      setEntries((eRes.data ?? []) as Entry[]);
+      setProfiles((pRes.data ?? []) as Profile[]);
+      setPredictions((predRes.data ?? []) as Prediction[]);
       setLoading(false);
     }
     load();
 
-    // Realtime: refrescar al cambiar predictions o matches
+    // Realtime: recargar SOLO cuando cambian pronósticos o pollas, con
+    // "debounce" para colapsar ráfagas (muchos guardados seguidos ⇒ 1 recarga).
+    // Los marcadores NO disparan recarga aquí: el prop `matches` ya se actualiza
+    // por realtime en la página Mundial y el ranking se recalcula en memoria.
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const debouncedLoad = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(load, 8000);
+    };
     const channel = supabase
       .channel("leaderboard-realtime")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "predictions" },
-        load
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "matches" },
-        load
+        debouncedLoad
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "entries" },
-        load
+        debouncedLoad
       )
       .subscribe();
 
     return () => {
       mounted = false;
+      if (timer) clearTimeout(timer);
       supabase.removeChannel(channel);
     };
-  }, [matches]);
+  }, []);
+
+  const rows: Row[] = useMemo(() => {
+    const profilesById = new Map<string, Profile>();
+    profiles.forEach((p) => profilesById.set(p.id, p));
+
+    const predsByEntry = new Map<string, Prediction[]>();
+    predictions.forEach((p) => {
+      const arr = predsByEntry.get(p.entry_id) ?? [];
+      arr.push(p);
+      predsByEntry.set(p.entry_id, arr);
+    });
+
+    return entries.map((entry) => {
+      const preds = predsByEntry.get(entry.id) ?? [];
+      const breakdown = computeEntryScore(preds, matches);
+      return {
+        entry,
+        profile: profilesById.get(entry.user_id) ?? null,
+        points: breakdown.points,
+        exact: breakdown.exact,
+        winner_score: breakdown.winner_score,
+        winner_or_draw: breakdown.winner_or_draw,
+        score_only: breakdown.score_only,
+        predictions_count: breakdown.predictions_count,
+      };
+    });
+  }, [entries, profiles, predictions, matches]);
 
   const demo = isDemoMode();
   const visible = useMemo(() => {
