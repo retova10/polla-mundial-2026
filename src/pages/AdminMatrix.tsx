@@ -156,7 +156,11 @@ export default function AdminMatrix() {
         // con pollas × partidos y es la que supera el límite de 1000 filas.
         fetchAllRows<Entry>("entries", { orderBy: "created_at" }),
         fetchAllRows<Profile>("profiles"),
-        fetchAllRows<Prediction>("predictions"),
+        // Solo las columnas que usa la matriz: reduce el tamaño de la descarga
+        // (la tabla de pronósticos es la más pesada y la que más egress gasta).
+        fetchAllRows<Prediction>("predictions", {
+          columns: "entry_id, match_id, home_score, away_score",
+        }),
       ]);
       if (!active) return;
       const err = mRes.error || eRes.error || pRes.error || prRes.error;
@@ -178,10 +182,21 @@ export default function AdminMatrix() {
     load(false);
     // Refresco en segundo plano: trae los pronósticos que la BD recién
     // hace públicos al bloquearse cada partido, y los marcadores reales.
-    const id = setInterval(() => load(true), 60000);
+    // Antes recargaba TODO cada 60s aunque nadie estuviera mirando la pestaña,
+    // lo que disparaba el egress. Ahora: cada 3 min y solo con la pestaña
+    // visible; además refresca al volver a la pestaña.
+    const REFRESH_MS = 180000;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") load(true);
+    }, REFRESH_MS);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") load(true);
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       active = false;
       clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
